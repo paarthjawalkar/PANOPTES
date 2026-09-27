@@ -368,22 +368,26 @@ document.getElementById('settings-option').onclick=()=>{optionsMenu.classList.ad
 document.getElementById('settings-close').onclick=()=>settings.classList.add('hidden');
 let savedQuality='auto';try{savedQuality=localStorage.getItem('panoptes-quality')||'auto'}catch{}
 if(['auto','low','medium','high'].includes(savedQuality))qualitySelect.value=savedQuality;
-const qualityScores={low:{scale:.85,sse:16,tiles:300},medium:{scale:1.2,sse:10,tiles:500},high:{scale:1.5,sse:8,tiles:900}};
+// Globe SSE governs terrain AND imagery refinement. v15's 10-16px budget
+// left satellite imagery visibly blocky; Cesium's stock globe budget is 2px.
+// Keep building-tile budget separate: it has different default/detail costs.
+const qualityScores={low:{scale:1.25,globeSse:2.5,buildingSse:16,tiles:300},medium:{scale:1.75,globeSse:1.7,buildingSse:12,tiles:500},high:{scale:2,globeSse:1.3,buildingSse:8,tiles:900}};
 function autoQuality(){
   const c=navigator.connection||{};
-  const slow=['slow-2g','2g','3g'].includes(c.effectiveType)||c.saveData||Number(c.downlink||10)<1.8;
-  const weak=(navigator.deviceMemory&&navigator.deviceMemory<=3)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
-  return slow||weak?'low':(navigator.deviceMemory>=8&&navigator.hardwareConcurrency>=8&&(!c.downlink||c.downlink>=8)?'high':'medium');
+  // Low data mode or severely constrained memory merits Low. Four CPU cores,
+  // a 3G reading, or a slow connection must not permanently blur the globe.
+  if(c.saveData||['slow-2g','2g'].includes(c.effectiveType)||(navigator.deviceMemory&&navigator.deviceMemory<=2))return 'low';
+  return navigator.deviceMemory>=8&&navigator.hardwareConcurrency>=8&&(!c.downlink||c.downlink>=8)?'high':'medium';
 }
 function applyQuality(){
   const name=qualitySelect.value==='auto'?autoQuality():qualitySelect.value,p=qualityScores[name];
   viewer.resolutionScale=Math.min(window.devicePixelRatio||1,p.scale);
-  viewer.scene.globe.maximumScreenSpaceError=p.sse;
+  viewer.scene.globe.maximumScreenSpaceError=p.globeSse;
   viewer.scene.fog.enabled=name!=='low'&&viewer.camera.positionCartographic.height>120000;
   // Android fragment precision can wash out ground atmosphere at close range.
   viewer.scene.globe.showGroundAtmosphere=viewer.camera.positionCartographic.height>350000;
   viewer.scene.globe.showWaterEffect=name==='high'||(name==='medium'&&viewer.camera.positionCartographic.height<100000);
-  if(window.osmBuildings){window.osmBuildings.maximumScreenSpaceError=p.sse;window.osmBuildings.maximumMemoryUsage=p.tiles}
+  if(window.osmBuildings){window.osmBuildings.maximumScreenSpaceError=p.buildingSse;window.osmBuildings.maximumMemoryUsage=p.tiles}
   viewer.scene.requestRender();
 }
 qualitySelect.onchange=()=>{try{localStorage.setItem('panoptes-quality',qualitySelect.value)}catch{}applyQuality()};

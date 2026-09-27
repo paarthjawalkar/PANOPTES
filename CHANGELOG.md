@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v16
+Sharpen globe imagery by tightening tile refinement and render resolution.
+
 ## v15
 Reduce close-up atmosphere washout and refine mobile visual assets.
 
