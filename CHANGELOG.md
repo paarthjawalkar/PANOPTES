@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v7
+Organize controls into a compact menu and show 2D/3D controls near city zoom.
+
 ## v6
 Tune atmosphere, water, and horizon appearance.
 

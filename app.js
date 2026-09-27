@@ -49,7 +49,7 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
         ["true", "color('#d3d5d2', 0.84)"],
       ]},
     });
-    viewer.scene.primitives.add(osm); window.osmBuildings = osm;
+    viewer.scene.primitives.add(osm); window.osmBuildings = osm; syncViewControl();
   } catch (e) { console.warn('buildings unavailable', e); }
 })();
 
@@ -161,7 +161,9 @@ else mic.onclick = () => {
 
 /* ---- boot + info ---- */
 window.addEventListener('load', () => setTimeout(() => document.getElementById('boot').classList.add('gone'), 2400));
-document.getElementById('info-btn').onclick = () => document.getElementById('info').classList.toggle('hidden');
+const optionsBtn = document.getElementById('options-btn'), optionsMenu = document.getElementById('options-menu');
+optionsBtn.onclick = () => { const open = optionsMenu.classList.toggle('hidden'); optionsBtn.setAttribute('aria-expanded', String(!open)); };
+document.getElementById('about-option').onclick = () => { optionsMenu.classList.add('hidden'); optionsBtn.setAttribute('aria-expanded', 'false'); document.getElementById('info').classList.remove('hidden'); };
 document.getElementById('info-close').onclick = () => document.getElementById('info').classList.add('hidden');
 
 /* Explicit, sharp on-screen labels: only resolved city/area names. Never label waterways from broad ocean classes. */
@@ -189,23 +191,42 @@ viewer.camera.moveEnd.addEventListener(() => {
   }, 2200);
 });
 
+/* 2D and 3D are camera/building modes on the same round Earth, not projection modes.
+   Offer the control only once city detail is close enough to show buildings. */
 const layerBtns = [...document.querySelectorAll('[data-layer]')];
+const layers = document.getElementById('layers');
+const BUILDING_VIEW_HEIGHT = 400000;
+let selectedView = '2d';
+function syncViewControl() {
+  const near = viewer.scene.mode === Cesium.SceneMode.SCENE3D && viewer.camera.positionCartographic.height < BUILDING_VIEW_HEIGHT;
+  layers.classList.toggle('hidden', !near);
+  if (window.osmBuildings) window.osmBuildings.show = near && selectedView === '3d';
+}
 function selectLayer(btn, initial = false) {
   if (!btn) return;
+  selectedView = btn.dataset.layer;
   layerBtns.forEach(b => { b.classList.toggle('selected', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
-  const track = document.getElementById('layer-highlight'), bar = document.getElementById('layers');
-  const a=btn.getBoundingClientRect(), p=bar.getBoundingClientRect();
-  track.style.width=`${a.width}px`; track.style.transform=`translateX(${a.left-p.left}px)`;
-  const is3D = btn.dataset.layer === '3d';
-  if (window.osmBuildings) window.osmBuildings.show = is3D;
+  const track = document.getElementById('layer-highlight');
+  const a = btn.getBoundingClientRect(), p = layers.getBoundingClientRect();
+  track.style.height = `${a.height}px`; track.style.width = `${a.width}px`;
+  track.style.transform = `translateY(${a.top-p.top}px)`;
+  syncViewControl();
   if (!initial) {
-    const wash=document.getElementById('scene-wash');
+    const wash = document.getElementById('scene-wash');
     wash.classList.remove('switching'); void wash.offsetWidth; wash.classList.add('switching');
     setTimeout(() => wash.classList.remove('switching'), 600);
-    if (is3D) viewer.scene.morphTo3D(1.15);
-    else viewer.scene.morphTo2D(1.15);
+    const xy = new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2);
+    const hit = viewer.camera.pickEllipsoid(xy);
+    if (hit) {
+      const c = Cesium.Cartographic.fromCartesian(hit), lon = Cesium.Math.toDegrees(c.longitude), lat = Cesium.Math.toDegrees(c.latitude);
+      const height = Math.max(500, viewer.camera.positionCartographic.height);
+      if (selectedView === '2d') viewer.camera.flyTo({destination: Cesium.Cartesian3.fromDegrees(lon, lat, height), orientation: {heading: viewer.camera.heading, pitch: Cesium.Math.toRadians(-89), roll: 0}, duration: .85});
+      else viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(lon, lat), 1), {offset: new Cesium.HeadingPitchRange(viewer.camera.heading, Cesium.Math.toRadians(-54), Math.max(500, height)), duration: .85});
+    }
   }
 }
 layerBtns.forEach(b => b.onclick = () => selectLayer(b));
-requestAnimationFrame(() => selectLayer(layerBtns.find(b => b.dataset.layer === '3d'), true));
-window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[1], true));
+viewer.camera.changed.addEventListener(syncViewControl);
+viewer.camera.moveEnd.addEventListener(syncViewControl);
+requestAnimationFrame(() => selectLayer(layerBtns.find(b => b.dataset.layer === '2d'), true));
+window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[0], true));
