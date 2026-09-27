@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v12
+Add mobile quality settings and a two-finger camera twist.
+
 ## v11
 Add a guarded flight-layer interface; keep it paused until live aircraft data works.
 

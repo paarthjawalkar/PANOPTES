@@ -343,7 +343,7 @@ document.getElementById('settings-option').onclick=()=>{optionsMenu.classList.ad
 document.getElementById('settings-close').onclick=()=>settings.classList.add('hidden');
 let savedQuality='auto';try{savedQuality=localStorage.getItem('panoptes-quality')||'auto'}catch{}
 if(['auto','low','medium','high'].includes(savedQuality))qualitySelect.value=savedQuality;
-const qualityScores={low:{scale:.7,sse:24,tiles:250},medium:{scale:1,sse:16,tiles:500},high:{scale:1.5,sse:8,tiles:900}};
+const qualityScores={low:{scale:.85,sse:16,tiles:300},medium:{scale:1,sse:12,tiles:500},high:{scale:1.5,sse:8,tiles:900}};
 function autoQuality(){
   const c=navigator.connection||{};
   const slow=['slow-2g','2g','3g'].includes(c.effectiveType)||c.saveData||Number(c.downlink||10)<1.8;
@@ -362,3 +362,20 @@ qualitySelect.onchange=()=>{try{localStorage.setItem('panoptes-quality',qualityS
 window.addEventListener('online',applyQuality);
 navigator.connection?.addEventListener?.('change',()=>{if(qualitySelect.value==='auto')applyQuality()});
 applyQuality();
+
+/* Deliberate two-finger twist rolls the camera; a normal pinch remains zoom-only.
+   Keep a dead zone so slight finger jitter during zoom-out does not spin the view. */
+let twistAngle=null, twistDistance=0;
+const canvas=viewer.canvas;
+function gesture(t){const a=t[0],b=t[1];return {angle:Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX),distance:Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY)}}
+canvas.addEventListener('touchstart',e=>{if(e.touches.length===2){const g=gesture(e.touches);twistAngle=g.angle;twistDistance=g.distance}}, {passive:true});
+canvas.addEventListener('touchmove',e=>{
+  if(e.touches.length!==2||twistAngle===null)return;
+  const g=gesture(e.touches);let d=g.angle-twistAngle;
+  if(d>Math.PI)d-=Math.PI*2;if(d< -Math.PI)d+=Math.PI*2;
+  const zooming=Math.abs(g.distance-twistDistance)>Math.max(10,twistDistance*.08);
+  if(!zooming&&Math.abs(d)>Cesium.Math.toRadians(3)){viewer.camera.twistRight(d);twistAngle=g.angle;viewer.scene.requestRender()}
+  twistDistance=g.distance;
+}, {passive:true});
+canvas.addEventListener('touchend',e=>{if(e.touches.length!==2)twistAngle=null},{passive:true});
+canvas.addEventListener('touchcancel',()=>{twistAngle=null},{passive:true});
