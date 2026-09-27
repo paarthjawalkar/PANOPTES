@@ -176,5 +176,5 @@ html,body,body *,body *::before,body *::after{-webkit-tap-highlight-color:transp
 
 .frame-note{display:block;color:#c6d4de;font-size:11px;line-height:1.4;margin:8px 0 15px}
 
-#fps-counter{position:fixed;left:10px;bottom:calc(26px + env(safe-area-inset-bottom));z-index:21;min-width:52px;padding:7px 9px;border-radius:14px;color:white;font:600 11px/1.1 system-ui,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 4px black;background:rgba(3,9,14,.4)}
+#fps-counter{position:fixed;left:12px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;min-width:52px;padding:7px 9px;border-radius:14px;color:white;font:600 11px/1.1 system-ui,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 4px black;background:rgba(3,9,14,.4)}
 #fps-counter[hidden]{display:none}

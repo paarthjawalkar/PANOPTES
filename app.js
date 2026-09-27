@@ -237,6 +237,26 @@ const layerBtns = [...document.querySelectorAll('[data-layer]')];
 const layers = document.getElementById('layers');
 const BUILDING_VIEW_HEIGHT = 400000;
 let selectedView = '2d';
+// 2D/3D buttons express the user's preference, not a Cesium scene-mode morph.
+// At wide zoom, flatten the camera angle; restore the preferred 3D pitch on
+// close zoom. The two thresholds prevent bouncing around the boundary.
+let autoFlat3d=false,autoViewBusy=false,autoViewTimer=0;
+function syncFar3dView(){
+  if(selectedView!=='3d'||autoViewBusy)return;
+  const h=viewer.camera.positionCartographic?.height;
+  if(!Number.isFinite(h))return;
+  const flatten=!autoFlat3d&&h>1100000,restore=autoFlat3d&&h<720000;
+  if(!flatten&&!restore)return;
+  autoFlat3d=flatten;
+  autoViewBusy=true;
+  const xy=new Cesium.Cartesian2(viewer.canvas.clientWidth/2,viewer.canvas.clientHeight/2);
+  const hit=viewer.camera.pickEllipsoid(xy);
+  const c=hit&&Cesium.Cartographic.fromCartesian(hit);
+  const destination=c?Cesium.Cartesian3.fromRadians(c.longitude,c.latitude,Math.max(500,h)):viewer.camera.position;
+  viewer.camera.flyTo({destination,orientation:{heading:viewer.camera.heading,pitch:flatten?Cesium.Math.toRadians(-89):Cesium.Math.toRadians(-54),roll:0},duration:.65,
+    complete:()=>{autoViewBusy=false},cancel:()=>{autoViewBusy=false}});
+  clearTimeout(autoViewTimer);autoViewTimer=setTimeout(()=>{autoViewBusy=false},950);
+}
 function syncViewControl() {
   const near = viewer.scene.mode === Cesium.SceneMode.SCENE3D && viewer.camera.positionCartographic.height < BUILDING_VIEW_HEIGHT;
   const wasHidden = layers.classList.contains('hidden');
@@ -250,6 +270,7 @@ function syncViewControl() {
 function selectLayer(btn, initial = false) {
   if (!btn) return;
   selectedView = btn.dataset.layer;
+  autoFlat3d=false;
   layerBtns.forEach(b => { b.classList.toggle('selected', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
   const track = document.getElementById('layer-highlight');
   const a = btn.getBoundingClientRect(), p = layers.getBoundingClientRect();
@@ -271,8 +292,8 @@ function selectLayer(btn, initial = false) {
   }
 }
 layerBtns.forEach(b => b.onclick = () => selectLayer(b));
-viewer.camera.changed.addEventListener(syncViewControl);
-viewer.camera.moveEnd.addEventListener(syncViewControl);
+viewer.camera.changed.addEventListener(()=>{syncViewControl();syncFar3dView()});
+viewer.camera.moveEnd.addEventListener(()=>{syncViewControl();syncFar3dView()});
 requestAnimationFrame(() => selectLayer(layerBtns.find(b => b.dataset.layer === '2d'), true));
 window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[0], true));
 
@@ -400,6 +421,7 @@ function applyFrameRate(){
   viewer.scene.requestRenderMode=false;
   viewer.targetFrameRate=fps;
   if(viewer.cesiumWidget)viewer.cesiumWidget.targetFrameRate=fps;
+  // A 120 setting only removes our 60-FPS throttle. Android/browser/GPU may still cap actual frames.
   try{localStorage.setItem('panoptes-frame-rate',frameRateSelect.value)}catch{}
 }
 frameRateSelect.addEventListener('change',applyFrameRate);
@@ -408,8 +430,11 @@ applyFrameRate();
 // bottleneck can make the achieved number lower than the selected target.
 const fpsToggle=document.getElementById('show-fps'),fpsCounter=document.getElementById('fps-counter');
 try{fpsToggle.checked=localStorage.getItem('panoptes-show-fps')==='true'}catch{}
-fpsCounter.hidden=!fpsToggle.checked;
-fpsToggle.addEventListener('change',()=>{fpsCounter.hidden=!fpsToggle.checked;try{localStorage.setItem('panoptes-show-fps',String(fpsToggle.checked))}catch{}});
+function syncFpsVisibility(){fpsCounter.hidden=!fpsToggle.checked;fpsCounter.style.display=fpsToggle.checked?'block':'none'}
+syncFpsVisibility();
+fpsToggle.addEventListener('change',()=>{syncFpsVisibility();try{localStorage.setItem('panoptes-show-fps',String(fpsToggle.checked))}catch{}});
+window.addEventListener('pageshow',syncFpsVisibility);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncFpsVisibility()});
 let fpsFrames=0,fpsStart=performance.now();
 viewer.scene.postRender.addEventListener(()=>{
   if(!fpsToggle.checked){fpsFrames=0;fpsStart=performance.now();return}
@@ -426,6 +451,31 @@ viewer.camera.changed.addEventListener(()=>{const h=viewer.camera.positionCartog
    Keep a dead zone so slight finger jitter during zoom-out does not spin the view. */
 let twistAngle=null, twistDistance=0;
 const canvas=viewer.canvas;
+// Google Maps-style one-finger zoom: tap once, then press and drag on the
+// second tap. Only capture a real drag, leaving a normal double tap intact.
+let firstTapTime=0,firstTapX=0,firstTapY=0,holdZoom=false,holdStartY=0,holdLastY=0,holdStartX=0,holdTimer=0,holdCandidate=false;
+canvas.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){holdCandidate=false;holdZoom=false;clearTimeout(holdTimer);return}
+  const t=e.touches[0],now=performance.now();
+  const isSecond=now-firstTapTime<420&&Math.hypot(t.clientX-firstTapX,t.clientY-firstTapY)<42;
+  if(isSecond){holdCandidate=true;holdStartY=holdLastY=t.clientY;holdStartX=t.clientX;firstTapTime=0;
+    holdTimer=setTimeout(()=>{if(holdCandidate){holdZoom=true;viewer.scene.screenSpaceCameraController.enableInputs=false}},130);
+  }else{firstTapTime=now;firstTapX=t.clientX;firstTapY=t.clientY}
+},{passive:true});
+canvas.addEventListener('touchmove',e=>{
+  if(!holdCandidate||e.touches.length!==1)return;
+  const t=e.touches[0];
+  if(!holdZoom){if(Math.hypot(t.clientX-holdStartX,t.clientY-holdStartY)>12){holdCandidate=false;clearTimeout(holdTimer)}return}
+  e.preventDefault();
+  const dy=t.clientY-holdLastY;holdLastY=t.clientY;
+  const height=Math.max(80,viewer.camera.positionCartographic.height);
+  // Dragging down zooms in, dragging up zooms out; scale per pixel is
+  // proportional to altitude so the movement stays continuous at any height.
+  if(Math.abs(dy)>0.1){const distance=height*(Math.exp(Math.abs(dy)*.008)-1);if(dy>0)viewer.camera.zoomIn(distance);else viewer.camera.zoomOut(distance);viewer.scene.requestRender()}
+},{passive:false});
+function endHoldZoom(){clearTimeout(holdTimer);holdCandidate=false;if(holdZoom){holdZoom=false;viewer.scene.screenSpaceCameraController.enableInputs=true}}
+canvas.addEventListener('touchend',endHoldZoom,{passive:true});
+canvas.addEventListener('touchcancel',endHoldZoom,{passive:true});
 function gesture(t){const a=t[0],b=t[1];return {angle:Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX),distance:Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY)}}
 canvas.addEventListener('touchstart',e=>{if(e.touches.length===2){const g=gesture(e.touches);twistAngle=g.angle;twistDistance=g.distance}}, {passive:true});
 canvas.addEventListener('touchmove',e=>{

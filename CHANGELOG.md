@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v21
+Keep the FPS counter visible after return; add double-tap-hold drag zoom and far-zoom 3D flatten/restore for phone testing.
+
 ## v20
 Remove a voluntary inspiration credit while keeping required provider attribution.
 
