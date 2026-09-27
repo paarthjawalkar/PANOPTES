@@ -7,7 +7,7 @@
 <title>PANOPTES</title>
 <link rel="icon" type="image/png" href="assets/eye.png">
 <link href="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 <div id="boot">
@@ -18,23 +18,25 @@
 <div id="scene-wash" aria-hidden="true"></div>
 <div id="place-label" aria-live="polite"></div>
 <div id="hud">
-  <div id="brand" class="glass"><img class="brand-eye" src="assets/eye.png" alt=""><img class="brand-word" src="assets/wordmark.png" alt="PANOPTES"></div>
+  <div id="brand" class="glass" role="button" tabindex="0" aria-label="Return to Earth"><img class="brand-eye" src="assets/eye.png" alt=""><img class="brand-word" src="assets/wordmark.png" alt="PANOPTES"></div>
   <div id="searchbox" class="glass">
     <input id="q" type="search" placeholder="Search places, landmarks..." autocomplete="off" enterkeyhint="search">
     <button id="mic" title="Voice search" aria-label="Voice search">&#8978;</button>
     <div id="suggest"></div>
   </div>
-  <button id="options-btn" class="glass" aria-label="Options" aria-expanded="false">&#8942;</button><div id="options-menu" class="glass hidden"><button id="about-option">About PANOPTES</button><span>Flights paused</span></div>
+  <button id="options-btn" class="glass" aria-label="Options" aria-expanded="false">&#8942;</button><div id="options-menu" class="glass hidden"><button id="settings-option">Settings</button><button id="about-option">About PANOPTES</button><button id="flight-option" disabled>Flights paused</button></div>
 </div>
 <button id="compass" class="glass" title="Face north" aria-label="Face north"><span id="compass-needle"><b>N</b><i></i><small>S</small></span></button>
-<nav id="layers" class="glass hidden" aria-label="View angle"><span id="layer-highlight"></span><button data-layer="2d" aria-pressed="true">2D</button><button data-layer="3d" aria-pressed="false">3D</button></nav><div id="flight-status" class="glass" aria-label="Flight layer unavailable">Flights paused</div>
+<nav id="layers" class="glass hidden" aria-label="View angle"><span id="layer-highlight"></span><button data-layer="2d" aria-pressed="true">2D</button><button data-layer="3d" aria-pressed="false">3D</button></nav><div id="flight-status" class="glass" role="button" tabindex="0" aria-label="Flight layer unavailable">Flights paused</div>
+<div id="flight-card" class="glass hidden" aria-live="polite"><button id="flight-close" aria-label="Close flight details">&times;</button><div id="flight-detail"></div></div>
+<div id="settings" class="glass hidden" role="dialog" aria-label="Settings"><button id="settings-close" aria-label="Close settings">&times;</button><h2>Settings</h2><label for="quality">Quality / Resolution</label><select id="quality"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><div class="settings-row"><span>Languages</span><small>English for now</small></div><div class="settings-row"><span>Famous Places</span><small>Search for landmarks above</small></div></div>
 <div id="info" class="glass hidden">
   <button id="info-close" aria-label="Close">&times;</button>
   <h2>PANOPTES</h2>
   <p>A lightweight live Earth explorer: continuous 3D zoom, real terrain and city buildings, and famous-place search.</p>
-  <p class="muted">Data: Cesium ion (world terrain, Bing imagery, OSM Buildings), OpenStreetMap contributors, Wikipedia/Wikidata, OSM Nominatim. Not for navigation.</p>
+  <p class="muted">Data: Cesium ion (world terrain, Bing imagery, OSM Buildings), OpenStreetMap contributors, Wikipedia/Wikidata, OSM Nominatim. Flight positions when available: ADSB.lol under ODbL; positions are approximate and may be delayed. Not for navigation.</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Cesium.js"></script>
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

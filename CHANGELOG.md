@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v11
+Add a guarded flight-layer interface; keep it paused until live aircraft data works.
+
 ## v10
 Refine PANOPTES assets and publish the current production baseline.
 

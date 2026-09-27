@@ -5,6 +5,7 @@ Cesium.Ion.defaultAccessToken = "REPLACE_WITH_YOUR_CESIUM_ION_TOKEN";
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
   baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
+  baseLayer: false,
   navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
   infoBox: false, selectionIndicator: false,
 });
@@ -257,3 +258,107 @@ viewer.camera.changed.addEventListener(syncViewControl);
 viewer.camera.moveEnd.addEventListener(syncViewControl);
 requestAnimationFrame(() => selectLayer(layerBtns.find(b => b.dataset.layer === '2d'), true));
 window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[0], true));
+
+/* Real-time flight layer (only enabled when guarded proxy returns live aircraft).
+   Trajectory is a short heading projection, not an observed route history. */
+const FLIGHT_API='https://gods-view-api.paarthjawalkar.workers.dev/flights';
+const aircraft=new Map();
+const flightStatus=document.getElementById('flight-status');
+const flightOption=document.getElementById('flight-option');
+const flightCard=document.getElementById('flight-card');
+const flightDetail=document.getElementById('flight-detail');
+document.getElementById('flight-close').onclick=()=>flightCard.classList.add('hidden');
+const flightIcons=new Cesium.PinBuilder();
+const iconCanvas=flightIcons.fromText('✈',Cesium.Color.WHITE,40).toDataURL();
+let lastFlightFetch=0, flightsPaused=true, flightLoading=false;
+function setFlightState(text,active=false){
+  flightsPaused=!active;
+  flightStatus.textContent=text;
+  flightStatus.setAttribute('aria-label',active?'Live flights available':text);
+  flightOption.textContent=text;
+  flightOption.disabled=!active;
+}
+function clearAircraft(){for(const a of aircraft.values()){viewer.entities.remove(a.dot);viewer.entities.remove(a.path)}aircraft.clear()}
+function aircraftName(a){return a.flight||a.registration||a.hex||'Aircraft'}
+function showAircraft(a){
+  flightDetail.replaceChildren();
+  const h=document.createElement('strong');h.textContent=aircraftName(a);
+  const p=document.createElement('div');p.textContent=[a.type?'Type '+a.type:'Type unknown',Number.isFinite(a.alt_baro)?Math.round(a.alt_baro).toLocaleString()+' ft':'Altitude unknown',a.gs?Math.round(a.gs)+' kt':'Speed unavailable'].join(' · ');
+  const c=document.createElement('small');c.textContent='Live reported position from ADSB.lol. Destination, origin and actual past trajectory unavailable from this feed.';
+  flightDetail.append(h,p,c);flightCard.classList.remove('hidden');
+}
+function updateAircraft(list){
+  const now=new Set();
+  for(const a of list.slice(0,250)){
+    if(!a.hex||!Number.isFinite(a.lat)||!Number.isFinite(a.lon)||a.lat>90||a.lat<-90||a.lon>180||a.lon<-180) continue;
+    now.add(a.hex);
+    let item=aircraft.get(a.hex);
+    const deg=Cesium.Math.toRadians(Number(a.track)||0), km=Math.min(28,Math.max(5,(Number(a.gs)||200)*.04));
+    const lat2=a.lat-Math.cos(deg)*km/111.32;
+    const lon2=a.lon-Math.sin(deg)*km/(111.32*Math.max(.12,Math.cos(Cesium.Math.toRadians(a.lat))));
+    const altitude=Math.max(1500,Math.min(15000,(Number(a.alt_baro)||0)*.3048));
+    const pos=Cesium.Cartesian3.fromDegrees(a.lon,a.lat,altitude);
+    if(item){item.a=a;item.dot.position=pos;item.path.polyline.positions=[Cesium.Cartesian3.fromDegrees(lon2,lat2,altitude),pos];continue}
+    const path=viewer.entities.add({polyline:{positions:[Cesium.Cartesian3.fromDegrees(lon2,lat2,altitude),pos],width:1,material:Cesium.Color.WHITE.withAlpha(.32),show:true}});
+    const dot=viewer.entities.add({position:pos,billboard:{image:iconCanvas,width:25,height:25,rotation:-deg,verticalOrigin:Cesium.VerticalOrigin.CENTER,disableDepthTestDistance:6000,scaleByDistance:new Cesium.NearFarScalar(40000,1,800000,.4)},properties:{aircraftHex:a.hex}});
+    aircraft.set(a.hex,{a,dot,path});
+  }
+  for(const [hex,item] of aircraft)if(!now.has(hex)){viewer.entities.remove(item.dot);viewer.entities.remove(item.path);aircraft.delete(hex)}
+}
+viewer.screenSpaceEventHandler.setInputAction(m=>{
+  const hit=viewer.scene.pick(m.position);const hex=hit?.id?.properties?.aircraftHex?.getValue();
+  if(hex&&aircraft.has(hex))showAircraft(aircraft.get(hex).a);
+},Cesium.ScreenSpaceEventType.LEFT_CLICK);
+async function refreshAircraft(){
+  if(flightLoading||document.visibilityState!=='visible'||viewer.camera.positionCartographic.height>650000) return;
+  const t=Date.now();if(t-lastFlightFetch<60000)return;
+  const xy=new Cesium.Cartesian2(viewer.canvas.clientWidth/2,viewer.canvas.clientHeight/2);
+  const hit=viewer.camera.pickEllipsoid(xy);if(!hit)return;
+  const p=Cesium.Cartographic.fromCartesian(hit);lastFlightFetch=t;flightLoading=true;
+  const u=`${FLIGHT_API}?lat=${Cesium.Math.toDegrees(p.latitude).toFixed(4)}&lon=${Cesium.Math.toDegrees(p.longitude).toFixed(4)}`;
+  try{
+    const response=await fetch(u,{signal:AbortSignal.timeout(11000),headers:{Accept:'application/json'}});
+    if(!response.ok)throw Error(`Feed ${response.status}`);
+    const data=await response.json();if(!Array.isArray(data.ac)||data.source!=='adsb.lol')throw Error('Invalid feed');
+    updateAircraft(data.ac);setFlightState(data.ac.length?`${aircraft.size} live flights`:'No nearby flights',true);
+  }catch(e){clearAircraft();setFlightState('Flights paused');lastFlightFetch=t+60000}
+  finally{flightLoading=false}
+}
+viewer.camera.moveEnd.addEventListener(refreshAircraft);
+setInterval(refreshAircraft,60000);
+setFlightState('Flights paused');
+
+/* Small phone interactions without changing Cesium's camera tilt/pinch mapping. */
+document.getElementById('brand').onclick=()=>{
+  q.value='';sug.classList.remove('open');q.blur();flightCard.classList.add('hidden');
+  viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(0,25,22000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},duration:2});
+};
+document.getElementById('brand').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.currentTarget.click()}};
+q.addEventListener('keydown',e=>{if(e.key==='Enter')q.blur()});
+
+/* Adaptive quality: conservative on slow networks and small devices; user may override. */
+const qualitySelect=document.getElementById('quality');
+const settings=document.getElementById('settings');
+document.getElementById('settings-option').onclick=()=>{optionsMenu.classList.add('hidden');settings.classList.remove('hidden')};
+document.getElementById('settings-close').onclick=()=>settings.classList.add('hidden');
+let savedQuality='auto';try{savedQuality=localStorage.getItem('panoptes-quality')||'auto'}catch{}
+if(['auto','low','medium','high'].includes(savedQuality))qualitySelect.value=savedQuality;
+const qualityScores={low:{scale:.7,sse:24,tiles:250},medium:{scale:1,sse:16,tiles:500},high:{scale:1.5,sse:8,tiles:900}};
+function autoQuality(){
+  const c=navigator.connection||{};
+  const slow=['slow-2g','2g','3g'].includes(c.effectiveType)||c.saveData||Number(c.downlink||10)<1.8;
+  const weak=(navigator.deviceMemory&&navigator.deviceMemory<=3)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
+  return slow||weak?'low':(navigator.deviceMemory>=8&&navigator.hardwareConcurrency>=8&&(!c.downlink||c.downlink>=8)?'high':'medium');
+}
+function applyQuality(){
+  const name=qualitySelect.value==='auto'?autoQuality():qualitySelect.value,p=qualityScores[name];
+  viewer.resolutionScale=Math.min(window.devicePixelRatio||1,p.scale);
+  viewer.scene.globe.maximumScreenSpaceError=p.sse;
+  viewer.scene.fog.enabled=name!=='low';
+  if(window.osmBuildings){window.osmBuildings.maximumScreenSpaceError=p.sse;window.osmBuildings.maximumMemoryUsage=p.tiles}
+  viewer.scene.requestRender();
+}
+qualitySelect.onchange=()=>{try{localStorage.setItem('panoptes-quality',qualitySelect.value)}catch{}applyQuality()};
+window.addEventListener('online',applyQuality);
+navigator.connection?.addEventListener?.('change',()=>{if(qualitySelect.value==='auto')applyQuality()});
+applyQuality();

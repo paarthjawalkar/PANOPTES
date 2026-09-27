@@ -1,6 +1,6 @@
 html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 #cesiumContainer{position:absolute;inset:0}
-.cesium-viewer-bottom{display:none!important}
+.cesium-viewer-bottom{z-index:15!important;opacity:.85!important;left:8px!important;bottom:4px!important;right:auto!important;transform:scale(.8);transform-origin:bottom left}
 .glass{background:rgba(20,22,28,.55);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%);border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.45)}
 /* boot */
 #boot{position:fixed;inset:0;background:#000;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;transition:opacity .9s ease}
@@ -96,3 +96,22 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-appl
 @keyframes label-channel-left{0%,25%,55%{opacity:.85;transform:translateX(-3px)}15%,40%{opacity:.55;transform:translateX(2px)}100%{opacity:0;transform:none}}
 @keyframes label-channel-right{0%,30%,60%{opacity:.7;transform:translateX(3px)}20%,48%{opacity:.5;transform:translateX(-2px)}100%{opacity:0;transform:none}}
 @media(prefers-reduced-motion:reduce){#place-label.glitch-in,#place-label.glitch-in::before,#place-label.glitch-in::after{animation:none}}
+/* v11: glass is translucent over imagery. Area text itself is not a glass chip. */
+.glass{background:rgba(14,19,27,.24);backdrop-filter:blur(20px) saturate(185%) brightness(1.03);-webkit-backdrop-filter:blur(20px) saturate(185%) brightness(1.03);border-color:rgba(255,255,255,.22);border-radius:24px}
+#brand,#searchbox,#compass,#options-btn,#layers,#flight-status{background:rgba(9,16,26,.20);border-color:rgba(255,255,255,.26);backdrop-filter:blur(22px) saturate(190%);-webkit-backdrop-filter:blur(22px) saturate(190%)}
+#brand,#options-btn,#searchbox,#compass,#flight-status{border-radius:999px}
+#place-label{background:none!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;padding:0;overflow:visible;text-shadow:-1px 0 #111,1px 0 #111,0 2px 5px #000,0 0 10px #000}
+#place-label::before,#place-label::after{inset:0}
+#compass{left:10px;right:auto;top:calc(65px + env(safe-area-inset-top))}
+#layers{top:calc(65px + env(safe-area-inset-top));border-radius:999px}
+#flight-status{top:calc(173px + env(safe-area-inset-top))}
+#brand{cursor:pointer}
+#cesiumContainer,#place-label,#layers,#compass,#flight-status{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#flight-card{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:27;color:#fff;padding:16px 20px;width:min(310px,calc(100vw - 56px));font-size:13px;line-height:1.6}
+#flight-card.hidden{display:none}
+#flight-card strong{font-size:17px;letter-spacing:.03em}
+#flight-close{float:right;background:transparent;color:white;border:0;font-size:22px;cursor:pointer}
+@media(max-width:520px){#compass{left:8px;right:auto}}
+
+#settings{position:fixed;z-index:31;top:50%;left:50%;transform:translate(-50%,-50%);width:min(370px,calc(100vw - 60px));max-height:75vh;overflow:auto;color:#fff;padding:23px;box-sizing:border-box}
+#settings.hidden{display:none}#settings h2{margin:0 0 22px;font-size:19px}#settings label{display:block;font-size:13px;color:#dadfe6;margin:8px 0}#settings select{width:100%;border:1px solid #ffffff33;border-radius:13px;background:#202732;color:#fff;font-size:15px;padding:12px}#settings-close{position:absolute;right:14px;top:12px;color:white;background:none;border:0;font-size:22px;cursor:pointer}.settings-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #ffffff23;padding:16px 0;font-size:14px}.settings-row small{color:#aeb8c4;text-align:right}
