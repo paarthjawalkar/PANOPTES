@@ -1,4 +1,6 @@
 /* PANOPTES Earth explorer. */
+// The current app has no service worker. Remove a registration from an older build, if any.
+if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister())).catch(() => {});
 Cesium.Ion.defaultAccessToken = "REPLACE_WITH_YOUR_CESIUM_ION_TOKEN";
 
 const viewer = new Cesium.Viewer('cesiumContainer', {
@@ -25,6 +27,9 @@ viewer.scene.fxaa = true;
 viewer.scene.postProcessStages.fxaa.enabled = true;
 viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 viewer.scene.screenSpaceCameraController.minimumZoomDistance = 80;
+// A two-finger pinch is exclusively zoom; Cesium's default also maps it to tilt,
+// which can make an intended zoom-out spin/drag the globe at oblique angles.
+viewer.scene.screenSpaceCameraController.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, {eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL}];
 viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 22000000) });
 
 (async () => {
@@ -162,18 +167,33 @@ else mic.onclick = () => {
 /* ---- boot + info ---- */
 window.addEventListener('load', () => setTimeout(() => document.getElementById('boot').classList.add('gone'), 2400));
 const optionsBtn = document.getElementById('options-btn'), optionsMenu = document.getElementById('options-menu');
+const compass = document.getElementById('compass');
+function syncCompass() { document.getElementById('compass-needle').style.transform = `rotate(${-Cesium.Math.toDegrees(viewer.camera.heading)}deg)`; }
+viewer.camera.changed.addEventListener(syncCompass);
+compass.onclick = () => viewer.camera.flyTo({destination: viewer.camera.position, orientation: {heading: 0, pitch: viewer.camera.pitch, roll: 0}, duration: .7});
+syncCompass();
 optionsBtn.onclick = () => { const open = optionsMenu.classList.toggle('hidden'); optionsBtn.setAttribute('aria-expanded', String(!open)); };
+document.getElementById('flight-status').onclick = () => { optionsMenu.classList.remove('hidden'); optionsBtn.setAttribute('aria-expanded', 'true'); };
 document.getElementById('about-option').onclick = () => { optionsMenu.classList.add('hidden'); optionsBtn.setAttribute('aria-expanded', 'false'); document.getElementById('info').classList.remove('hidden'); };
 document.getElementById('info-close').onclick = () => document.getElementById('info').classList.add('hidden');
 
 /* Explicit, sharp on-screen labels: only resolved city/area names. Never label waterways from broad ocean classes. */
 const placeLabel = document.getElementById('place-label');
-let placeTimer, lastPlaceKey = '', lastPlaceAt = 0;
+let placeTimer, lastPlaceKey = '', lastPlaceAt = 0, lastLabelName = '';
+function showPlaceName(name) {
+  if (name === lastLabelName) return;
+  lastLabelName = name;
+  placeLabel.textContent = name ? name.toLocaleUpperCase() : '';
+  placeLabel.dataset.text = placeLabel.textContent;
+  placeLabel.classList.remove('glitch-in');
+  void placeLabel.offsetWidth;
+  if (name) placeLabel.classList.add('glitch-in');
+}
 viewer.camera.moveEnd.addEventListener(() => {
   clearTimeout(placeTimer);
   placeTimer = setTimeout(async () => {
     const pos = viewer.camera.positionCartographic;
-    if (!pos || pos.height > 850000 || Date.now() - lastPlaceAt < 10000) { if (pos?.height > 850000) placeLabel.textContent = ''; return; }
+    if (!pos || pos.height > 850000 || Date.now() - lastPlaceAt < 10000) { if (pos?.height > 850000) showPlaceName(''); return; }
     const pick = viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2));
     if (!pick) return;
     const c = Cesium.Cartographic.fromCartesian(pick);
@@ -185,9 +205,11 @@ viewer.camera.moveEnd.addEventListener(() => {
       const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
       const j = await r.json();
       const a = j.address || {};
-      const n = a.city || a.town || a.village || a.municipality || a.county || '';
-      placeLabel.textContent = n || '';
-    } catch { placeLabel.textContent = ''; }
+      const n = pos.height < 5000
+        ? (a.neighbourhood || a.suburb || a.city_district || a.city || a.town || a.village || a.municipality || a.county || '')
+        : (a.city || a.town || a.village || a.municipality || a.county || a.state || '');
+      showPlaceName(n);
+    } catch { showPlaceName(''); }
   }, 2200);
 });
 
@@ -199,7 +221,12 @@ const BUILDING_VIEW_HEIGHT = 400000;
 let selectedView = '2d';
 function syncViewControl() {
   const near = viewer.scene.mode === Cesium.SceneMode.SCENE3D && viewer.camera.positionCartographic.height < BUILDING_VIEW_HEIGHT;
+  const wasHidden = layers.classList.contains('hidden');
   layers.classList.toggle('hidden', !near);
+  if (near && wasHidden) requestAnimationFrame(() => {
+    const b = document.querySelector('[data-layer].selected'), a = b.getBoundingClientRect(), p = layers.getBoundingClientRect(), track = document.getElementById('layer-highlight');
+    track.style.width = `${a.width}px`; track.style.height = `${a.height}px`; track.style.transform = `translateY(${a.top-p.top}px)`;
+  });
   if (window.osmBuildings) window.osmBuildings.show = near && selectedView === '3d';
 }
 function selectLayer(btn, initial = false) {

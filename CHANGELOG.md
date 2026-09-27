@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v8
+Keep pinch as zoom rather than tilt; add a compass and remove old service workers.
+
 ## v7
 Organize controls into a compact menu and show 2D/3D controls near city zoom.
 

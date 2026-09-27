@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>PANOPTES</title>
 <link rel="icon" type="image/png" href="assets/eye.png">
 <link href="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <div id="boot">
@@ -25,6 +26,7 @@
   </div>
   <button id="options-btn" class="glass" aria-label="Options" aria-expanded="false">&#8942;</button><div id="options-menu" class="glass hidden"><button id="about-option">About PANOPTES</button><span>Flights paused</span></div>
 </div>
+<button id="compass" class="glass" title="Face north" aria-label="Face north"><span id="compass-needle"><b>N</b><i></i><small>S</small></span></button>
 <nav id="layers" class="glass hidden" aria-label="View angle"><span id="layer-highlight"></span><button data-layer="2d" aria-pressed="true">2D</button><button data-layer="3d" aria-pressed="false">3D</button></nav><div id="flight-status" class="glass" aria-label="Flight layer unavailable">Flights paused</div>
 <div id="info" class="glass hidden">
   <button id="info-close" aria-label="Close">&times;</button>
@@ -33,6 +35,6 @@
   <p class="muted">Data: Cesium ion (world terrain, Bing imagery, OSM Buildings), OpenStreetMap contributors, Wikipedia/Wikidata, OSM Nominatim. Not for navigation.</p>
 </div>
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Cesium.js"></script>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>
