@@ -402,7 +402,8 @@ function autoQuality(){
 }
 function applyQuality(){
   const name=qualitySelect.value==='auto'?autoQuality():qualitySelect.value,p=qualityScores[name];
-  viewer.resolutionScale=Math.min(window.devicePixelRatio||1,p.scale);
+  const fastAuto=qualitySelect.value==='auto'&&Number(document.getElementById('frame-rate')?.value)>60;
+  viewer.resolutionScale=Math.min(window.devicePixelRatio||1,fastAuto?Math.min(p.scale,1.4):p.scale);
   viewer.scene.globe.maximumScreenSpaceError=p.globeSse;
   viewer.scene.fog.enabled=name!=='low'&&viewer.camera.positionCartographic.height>120000;
   // Android fragment precision can wash out ground atmosphere at close range.
@@ -422,6 +423,9 @@ function applyFrameRate(){
   viewer.targetFrameRate=fps;
   if(viewer.cesiumWidget)viewer.cesiumWidget.targetFrameRate=fps;
   // A 120 setting only removes our 60-FPS throttle. Android/browser/GPU may still cap actual frames.
+  // Reduce expensive render resolution slightly only in Auto mode at 90/120; the
+  // explicit High quality setting remains untouched if sharpness matters more.
+  if(qualitySelect.value==='auto')applyQuality();
   try{localStorage.setItem('panoptes-frame-rate',frameRateSelect.value)}catch{}
 }
 frameRateSelect.addEventListener('change',applyFrameRate);
@@ -498,9 +502,28 @@ for(const [key,el] of Object.entries(feedback)){
   el.addEventListener('change',()=>{localStorage.setItem('panoptes-'+key,el.type==='checkbox'?String(el.checked):el.value);if(key==='motion')document.documentElement.classList.toggle('reduce-motion',el.checked)});
 }
 document.documentElement.classList.toggle('reduce-motion',feedback.motion.checked);
-let soundContext;let lastGestureBuzz=0;
+let soundContext;let lastDetent=0,lastTouchSample=null;
+// Browsers expose vibration timing, not motor strength. A quick gesture gets
+// closer/longer detent ticks; a slow gesture gets sparse short pulses.
+function gestureDetent(speed){
+  if(!feedback.haptics.checked||!navigator.vibrate)return;
+  const now=performance.now(),fast=Math.min(1,Math.max(0,(speed-0.16)/1.3));
+  const spacing=145-fast*95;
+  if(now-lastDetent<spacing)return;
+  lastDetent=now;
+  navigator.vibrate(fast>.7?[16,12,18]:fast>.32?[11,20,12]:[6]);
+}
+canvas.addEventListener('touchstart',e=>{lastTouchSample=e.touches.length?{x:e.touches[0].clientX,y:e.touches[0].clientY,t:performance.now()}:null},{passive:true});
+canvas.addEventListener('touchmove',e=>{
+  const t=e.touches[0];if(!t||!lastTouchSample)return;
+  const now=performance.now(),dt=Math.max(8,now-lastTouchSample.t),speed=Math.hypot(t.clientX-lastTouchSample.x,t.clientY-lastTouchSample.y)/dt;
+  if(speed>.07)gestureDetent(speed);
+  lastTouchSample={x:t.clientX,y:t.clientY,t:now};
+},{passive:true});
+canvas.addEventListener('touchend',e=>{if(!e.touches.length)lastTouchSample=null},{passive:true});
+canvas.addEventListener('touchcancel',()=>{lastTouchSample=null},{passive:true});
 function feedbackPulse(kind='tap'){
-  if(feedback.haptics.checked&&navigator.vibrate)navigator.vibrate(kind==='gesture'?8:12);
+  if(feedback.haptics.checked&&navigator.vibrate)navigator.vibrate(kind==='gesture'?[10,22,11]:[12,25,15]);
   if(!feedback.sound.checked)return;
   try{soundContext??=new (window.AudioContext||window.webkitAudioContext)();const o=soundContext.createOscillator(),g=soundContext.createGain(),now=soundContext.currentTime;
     o.type='sine';o.frequency.setValueAtTime(kind==='gesture'?410:520,now);o.frequency.exponentialRampToValueAtTime(330,now+.045);
@@ -509,4 +532,4 @@ function feedbackPulse(kind='tap'){
   }catch{}
 }
 document.addEventListener('click',e=>{if(e.target.closest('button,#brand,[role="button"]'))feedbackPulse()},{capture:true});
-canvas.addEventListener('touchend',e=>{if(e.changedTouches.length&&Date.now()-lastGestureBuzz>300){lastGestureBuzz=Date.now();feedbackPulse('gesture')}},{passive:true});
+// Continuous gestures produce detents above; no redundant end-of-gesture buzz.

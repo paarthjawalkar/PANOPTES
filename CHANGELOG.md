@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v22
+Add speed-based haptic detents and lower Auto resolution at high FPS targets for a performance test.
+
 ## v21
 Keep the FPS counter visible after return; add double-tap-hold drag zoom and far-zoom 3D flatten/restore for phone testing.
 
