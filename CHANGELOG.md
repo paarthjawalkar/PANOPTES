@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v18
+Offer 30, 60, 90, and 120 FPS targets; actual frame rate depends on device load.
+
 ## v17
 Make the control housings clearer while keeping the moving lens frosted.
 

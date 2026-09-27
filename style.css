@@ -173,3 +173,5 @@ html,body,body *,body *::before,body *::after{-webkit-tap-highlight-color:transp
 }
 #layers button.selected{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.78)}
 #options-menu{background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(6,12,20,.34))}
+
+.frame-note{display:block;color:#c6d4de;font-size:11px;line-height:1.4;margin:8px 0 15px}

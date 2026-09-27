@@ -390,6 +390,20 @@ function applyQuality(){
   if(window.osmBuildings){window.osmBuildings.maximumScreenSpaceError=p.buildingSse;window.osmBuildings.maximumMemoryUsage=p.tiles}
   viewer.scene.requestRender();
 }
+// Cesium's render loop may skip frames in request-render mode. Let camera moves
+// use the regular animation loop; the chosen target is a cap, not a promise.
+const frameRateSelect=document.getElementById('frame-rate');
+let savedFrameRate='60';try{savedFrameRate=localStorage.getItem('panoptes-frame-rate')||'60'}catch{}
+if(['30','60','90','120'].includes(savedFrameRate))frameRateSelect.value=savedFrameRate;
+function applyFrameRate(){
+  const fps=Number(frameRateSelect.value);
+  viewer.scene.requestRenderMode=false;
+  viewer.targetFrameRate=fps;
+  if(viewer.cesiumWidget)viewer.cesiumWidget.targetFrameRate=fps;
+  try{localStorage.setItem('panoptes-frame-rate',frameRateSelect.value)}catch{}
+}
+frameRateSelect.addEventListener('change',applyFrameRate);
+applyFrameRate();
 qualitySelect.onchange=()=>{try{localStorage.setItem('panoptes-quality',qualitySelect.value)}catch{}applyQuality()};
 window.addEventListener('online',applyQuality);
 navigator.connection?.addEventListener?.('change',()=>{if(qualitySelect.value==='auto')applyQuality()});
