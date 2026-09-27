@@ -14,6 +14,7 @@
   <img id="boot-name" src="assets/wordmark.png" alt="PANOPTES">
 </div>
 <div id="cesiumContainer"></div>
+<div id="place-label" aria-live="polite"></div>
 <div id="hud">
   <div id="brand" class="glass"><img class="brand-eye" src="assets/eye.png" alt=""><img class="brand-word" src="assets/wordmark.png" alt="PANOPTES"></div>
   <div id="searchbox" class="glass">
@@ -23,6 +24,7 @@
   </div>
   <button id="info-btn" class="glass" aria-label="About">i</button>
 </div>
+<nav id="layers" class="glass" aria-label="Earth layers"><span id="layer-highlight"></span><button data-layer="earth" aria-pressed="true">Earth</button><button data-layer="buildings" aria-pressed="false">3D buildings</button><button data-layer="about" aria-pressed="false">About</button><span class="layer-paused" title="Flights unavailable">Flights paused</span></nav>
 <div id="info" class="glass hidden">
   <button id="info-close" aria-label="Close">&times;</button>
   <h2>PANOPTES</h2>

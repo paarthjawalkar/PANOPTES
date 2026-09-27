@@ -17,7 +17,7 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
 (async () => {
   try {
     viewer.imageryLayers.removeAll();
-    viewer.imageryLayers.addImageryProvider(await Cesium.IonImageryProvider.fromAssetId(3)); // Bing aerial with labels
+    viewer.imageryLayers.addImageryProvider(await Cesium.IonImageryProvider.fromAssetId(2)); // Bing aerial, no burned-in labels
   } catch (e) { console.warn('imagery fallback', e); }
   try {
     viewer.scene.setTerrain(new Cesium.Terrain(Cesium.CesiumTerrainProvider.fromIonAssetId(1)));
@@ -25,7 +25,7 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
   try {
     const osm = await Cesium.createOsmBuildingsAsync();
     osm.style = new Cesium.Cesium3DTileStyle({ color: "color('#dfe6ee', 0.9)" });
-    viewer.scene.primitives.add(osm);
+    viewer.scene.primitives.add(osm); window.osmBuildings = osm;
   } catch (e) { console.warn('buildings unavailable', e); }
 })();
 
@@ -138,3 +138,42 @@ else mic.onclick = () => {
 window.addEventListener('load', () => setTimeout(() => document.getElementById('boot').classList.add('gone'), 2400));
 document.getElementById('info-btn').onclick = () => document.getElementById('info').classList.toggle('hidden');
 document.getElementById('info-close').onclick = () => document.getElementById('info').classList.add('hidden');
+
+/* Explicit, sharp on-screen labels: only resolved city/area names. Never label waterways from broad ocean classes. */
+const placeLabel = document.getElementById('place-label');
+let placeTimer, lastPlaceKey = '', lastPlaceAt = 0;
+viewer.camera.moveEnd.addEventListener(() => {
+  clearTimeout(placeTimer);
+  placeTimer = setTimeout(async () => {
+    const pos = viewer.camera.positionCartographic;
+    if (!pos || pos.height > 850000 || Date.now() - lastPlaceAt < 1200) { if (pos?.height > 850000) placeLabel.textContent = ''; return; }
+    const pick = viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2));
+    if (!pick) return;
+    const c = Cesium.Cartographic.fromCartesian(pick);
+    const lat = Cesium.Math.toDegrees(c.latitude), lon = Cesium.Math.toDegrees(c.longitude);
+    const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+    if (key === lastPlaceKey) return;
+    lastPlaceKey = key; lastPlaceAt = Date.now();
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
+      const j = await r.json();
+      const a = j.address || {};
+      const n = a.city || a.town || a.village || a.municipality || a.county || '';
+      placeLabel.textContent = n || '';
+    } catch { placeLabel.textContent = ''; }
+  }, 1400);
+});
+
+const layerBtns = [...document.querySelectorAll('[data-layer]')];
+function selectLayer(btn) {
+  layerBtns.forEach(b => {b.classList.toggle('selected', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');});
+  const track = document.getElementById('layer-highlight'), bar = document.getElementById('layers');
+  const a=btn.getBoundingClientRect(), p=bar.getBoundingClientRect();
+  track.style.width=`${a.width}px`; track.style.transform=`translateX(${a.left-p.left}px)`;
+  if (window.osmBuildings) window.osmBuildings.show = btn.dataset.layer !== 'earth';
+  if (btn.dataset.layer === 'about') document.getElementById('info').classList.remove('hidden');
+  else document.getElementById('info').classList.add('hidden');
+}
+layerBtns.forEach(b => b.onclick = () => selectLayer(b));
+requestAnimationFrame(() => selectLayer(layerBtns[0]));
+window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[0]));
