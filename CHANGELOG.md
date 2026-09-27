@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v20
+Remove a voluntary inspiration credit while keeping required provider attribution.
+
 ## v19
 Add a switchable counter for measured rendered frames.
 
