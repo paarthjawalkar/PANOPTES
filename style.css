@@ -43,3 +43,12 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-appl
 @media (max-width:520px){#hud{left:8px;right:8px;gap:6px}#brand .brand-word{display:none}#brand{padding:11px}#searchbox{min-width:0;flex:1}#q{font-size:13px;padding:12px 9px}#info-btn{width:38px;height:42px;flex:none}#layers{left:11px;right:11px;transform:none;justify-content:flex-start}#layers button{padding:10px 11px}}
 @media (prefers-reduced-motion:reduce){#layer-highlight,#layers button,#boot,#boot-eye,#boot-name{animation:none;transition:none}}
 
+
+/* Echo Music reference: glass lens glides between tabs; a brief soft crossfade on view switch. */
+#scene-wash{position:fixed;inset:0;z-index:12;pointer-events:none;opacity:0;background:rgba(5,8,14,.16);backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}
+#scene-wash.switching{animation:scene-morph .56s cubic-bezier(.2,.65,.3,1)}
+@keyframes scene-morph{0%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}43%{opacity:1;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}100%{opacity:0;backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0)}}
+#brand,#searchbox,#info-btn{box-shadow:inset 0 1px 1px rgba(255,255,255,.28),inset 0 -1px 0 rgba(255,255,255,.08),0 8px 28px rgba(0,0,0,.4)}
+#layers{border-color:rgba(255,255,255,.28);background:rgba(12,14,18,.55)}
+#layer-highlight{background:linear-gradient(140deg,rgba(255,255,255,.35),rgba(159,180,197,.18) 60%,rgba(255,255,255,.26));backdrop-filter:blur(18px) saturate(155%);-webkit-backdrop-filter:blur(18px) saturate(155%);border-color:rgba(255,255,255,.4);box-shadow:inset 0 1px 2px rgba(255,255,255,.48),0 3px 12px rgba(0,0,0,.2)}
+@media (prefers-reduced-motion:reduce){#scene-wash.switching{animation:none}}

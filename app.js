@@ -29,10 +29,11 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
   } catch (e) { console.warn('buildings unavailable', e); }
 })();
 
-function flyTo(lat, lon, height = 2500) {
-  viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-    orientation: { heading: 0, pitch: Cesium.Math.toRadians(-55), roll: 0 },
+function flyTo(lat, lon) {
+  const target = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
+  const sphere = new Cesium.BoundingSphere(target, 150);
+  viewer.camera.flyToBoundingSphere(sphere, {
+    offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-46), 1800),
     duration: 3.2,
   });
 }
@@ -146,7 +147,7 @@ viewer.camera.moveEnd.addEventListener(() => {
   clearTimeout(placeTimer);
   placeTimer = setTimeout(async () => {
     const pos = viewer.camera.positionCartographic;
-    if (!pos || pos.height > 850000 || Date.now() - lastPlaceAt < 1200) { if (pos?.height > 850000) placeLabel.textContent = ''; return; }
+    if (!pos || pos.height > 850000 || Date.now() - lastPlaceAt < 10000) { if (pos?.height > 850000) placeLabel.textContent = ''; return; }
     const pick = viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2));
     if (!pick) return;
     const c = Cesium.Cartographic.fromCartesian(pick);
@@ -161,7 +162,7 @@ viewer.camera.moveEnd.addEventListener(() => {
       const n = a.city || a.town || a.village || a.municipality || a.county || '';
       placeLabel.textContent = n || '';
     } catch { placeLabel.textContent = ''; }
-  }, 1400);
+  }, 2200);
 });
 
 const layerBtns = [...document.querySelectorAll('[data-layer]')];
@@ -171,6 +172,9 @@ function selectLayer(btn) {
   const a=btn.getBoundingClientRect(), p=bar.getBoundingClientRect();
   track.style.width=`${a.width}px`; track.style.transform=`translateX(${a.left-p.left}px)`;
   if (window.osmBuildings) window.osmBuildings.show = btn.dataset.layer !== 'earth';
+  const wash=document.getElementById('scene-wash');
+  wash.classList.remove('switching'); void wash.offsetWidth; wash.classList.add('switching');
+  setTimeout(() => wash.classList.remove('switching'), 600);
   if (btn.dataset.layer === 'about') document.getElementById('info').classList.remove('hidden');
   else document.getElementById('info').classList.add('hidden');
 }
