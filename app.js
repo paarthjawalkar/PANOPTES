@@ -1,4 +1,4 @@
-/* PANOPTES Earth explorer. */
+/* PANOPTES - Earth explorer optimized for mobile. Original implementation. */
 // The current app has no service worker. Remove a registration from an older build, if any.
 if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister())).catch(() => {});
 Cesium.Ion.defaultAccessToken = "REPLACE_WITH_YOUR_CESIUM_ION_TOKEN";
@@ -12,6 +12,8 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
 viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#0a1420');
 viewer.scene.backgroundColor = Cesium.Color.BLACK;
 viewer.scene.globe.enableLighting = true;
+viewer.scene.globe.showWaterEffect = true;
+viewer.scene.globe.oceanNormalMapUrl = Cesium.buildModuleUrl("Assets/Textures/waterNormalsSmall.jpg");
 // Gentle blue limb and horizon haze. Keep Cesium's native sky/ground scattering,
 // rather than overlaying a screen-space halo that would drift as the camera moves.
 viewer.scene.skyAtmosphere.show = true;
@@ -59,12 +61,18 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
   } catch (e) { console.warn('buildings unavailable', e); }
 })();
 
+function cameraState(){const c=viewer.camera.positionCartographic;return {lon:Cesium.Math.toDegrees(c.longitude),lat:Cesium.Math.toDegrees(c.latitude),height:c.height,heading:viewer.camera.heading,pitch:viewer.camera.pitch,roll:viewer.camera.roll}}
+function saveView(destination){try{history.replaceState({panoptesView:cameraState()},'',location.href);history.pushState({panoptesView:destination},'',location.href)}catch{}}
+window.addEventListener('popstate',e=>{if(sessionStorage.getItem('panoptes-hard-home')==='1'){history.replaceState({panoptesHardHome:true,panoptesView:{lon:0,lat:25,height:22000000,heading:0,pitch:-Math.PI/2,roll:0}},'',location.pathname);return}const v=e.state?.panoptesView;if(!v)return;viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(v.lon,v.lat,v.height),orientation:{heading:v.heading,pitch:v.pitch,roll:v.roll},duration:1.1})});
 function flyTo(lat, lon) {
+  try{sessionStorage.removeItem('panoptes-hard-home')}catch{}
+  saveView({lon,lat,height:1800,heading:0,pitch:Cesium.Math.toRadians(-46),roll:0});
   const target = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
   const sphere = new Cesium.BoundingSphere(target, 150);
   viewer.camera.flyToBoundingSphere(sphere, {
     offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-46), 1800),
     duration: 3.2,
+    complete:()=>{try{history.replaceState({panoptesView:cameraState()},'',location.href)}catch{}},
   });
 }
 
@@ -169,13 +177,23 @@ else mic.onclick = () => {
 window.addEventListener('load', () => setTimeout(() => document.getElementById('boot').classList.add('gone'), 2400));
 const optionsBtn = document.getElementById('options-btn'), optionsMenu = document.getElementById('options-menu');
 const compass = document.getElementById('compass');
-function syncCompass() { document.getElementById('compass-needle').style.transform = `rotate(${-Cesium.Math.toDegrees(viewer.camera.heading)}deg)`; }
+function syncCompass() {
+  const h=((Cesium.Math.toDegrees(viewer.camera.heading)%360)+360)%360;
+  const compassDirection=['N','NE','E','SE','S','SW','W','NW'][Math.round(h/45)%8];
+  document.getElementById('compass-needle').style.transform = `rotate(${-h}deg)`;
+  document.getElementById('heading-readout').textContent=compassDirection;
+  compass.setAttribute('aria-label',`Heading ${compassDirection}; tap to face north`);
+}
 viewer.camera.changed.addEventListener(syncCompass);
 compass.onclick = () => viewer.camera.flyTo({destination: viewer.camera.position, orientation: {heading: 0, pitch: viewer.camera.pitch, roll: 0}, duration: .7});
 syncCompass();
 optionsBtn.onclick = () => { const open = optionsMenu.classList.toggle('hidden'); optionsBtn.setAttribute('aria-expanded', String(!open)); };
 document.getElementById('flight-status').onclick = () => { optionsMenu.classList.remove('hidden'); optionsBtn.setAttribute('aria-expanded', 'true'); };
-document.getElementById('about-option').onclick = () => { optionsMenu.classList.add('hidden'); optionsBtn.setAttribute('aria-expanded', 'false'); document.getElementById('info').classList.remove('hidden'); };
+for(const name of ['about','help','faq','contact','support']){
+  const id=name==='about'?'info':name;
+  document.getElementById(name+'-option').onclick=()=>{optionsMenu.classList.add('hidden');optionsBtn.setAttribute('aria-expanded','false');document.getElementById(id).classList.remove('hidden')};
+}
+for(const b of document.querySelectorAll('.aux-close'))b.onclick=()=>b.closest('[role=dialog]').classList.add('hidden');
 document.getElementById('info-close').onclick = () => document.getElementById('info').classList.add('hidden');
 
 /* Explicit, sharp on-screen labels: only resolved city/area names. Never label waterways from broad ocean classes. */
@@ -329,10 +347,18 @@ setInterval(refreshAircraft,60000);
 setFlightState('Flights paused');
 
 /* Small phone interactions without changing Cesium's camera tilt/pinch mapping. */
-document.getElementById('brand').onclick=()=>{
-  q.value='';sug.classList.remove('open');q.blur();flightCard.classList.add('hidden');
+const brand=document.getElementById('brand');
+let homeTimer=0,hardHomeFired=false;
+function goHome(hard=false){
+  if(!hard)saveView({lon:0,lat:25,height:22000000,heading:0,pitch:-Math.PI/2,roll:0});
+  q.value='';sug.classList.remove('open');q.blur();flightCard.classList.add('hidden');showPlaceName('');
+  if(hard){clearAircraft();try{sessionStorage.setItem('panoptes-hard-home','1');history.replaceState({panoptesHardHome:true,panoptesView:{lon:0,lat:25,height:22000000,heading:0,pitch:-Math.PI/2,roll:0}},'',location.pathname)}catch{}}
   viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(0,25,22000000),orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},duration:2});
-};
+}
+brand.onclick=()=>{if(hardHomeFired){hardHomeFired=false;return}goHome(false)};
+brand.addEventListener('pointerdown',e=>{hardHomeFired=false;homeTimer=setTimeout(()=>{hardHomeFired=true;goHome(true)},850)});
+for(const ev of ['pointerup','pointerleave','pointercancel'])brand.addEventListener(ev,()=>clearTimeout(homeTimer));
+brand.addEventListener('contextmenu',e=>e.preventDefault());
 document.getElementById('brand').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.currentTarget.click()}};
 q.addEventListener('keydown',e=>{if(e.key==='Enter')q.blur()});
 
@@ -355,6 +381,7 @@ function applyQuality(){
   viewer.resolutionScale=Math.min(window.devicePixelRatio||1,p.scale);
   viewer.scene.globe.maximumScreenSpaceError=p.sse;
   viewer.scene.fog.enabled=name!=='low';
+  viewer.scene.globe.showWaterEffect=name==='high'||(name==='medium'&&viewer.camera.positionCartographic.height<100000);
   if(window.osmBuildings){window.osmBuildings.maximumScreenSpaceError=p.sse;window.osmBuildings.maximumMemoryUsage=p.tiles}
   viewer.scene.requestRender();
 }

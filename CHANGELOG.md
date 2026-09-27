@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v13
+Add browser Back view history, eye-home behavior, and fuller information screens.
+
 ## v12
 Add mobile quality settings and a two-finger camera twist.
 
