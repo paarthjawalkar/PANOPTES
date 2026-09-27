@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v19
+Add a switchable counter for measured rendered frames.
+
 ## v18
 Offer 30, 60, 90, and 120 FPS targets; actual frame rate depends on device load.
 

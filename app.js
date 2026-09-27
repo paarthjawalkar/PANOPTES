@@ -404,6 +404,18 @@ function applyFrameRate(){
 }
 frameRateSelect.addEventListener('change',applyFrameRate);
 applyFrameRate();
+// Count rendered frames rather than requestAnimationFrame callbacks: a GPU/CPU
+// bottleneck can make the achieved number lower than the selected target.
+const fpsToggle=document.getElementById('show-fps'),fpsCounter=document.getElementById('fps-counter');
+try{fpsToggle.checked=localStorage.getItem('panoptes-show-fps')==='true'}catch{}
+fpsCounter.hidden=!fpsToggle.checked;
+fpsToggle.addEventListener('change',()=>{fpsCounter.hidden=!fpsToggle.checked;try{localStorage.setItem('panoptes-show-fps',String(fpsToggle.checked))}catch{}});
+let fpsFrames=0,fpsStart=performance.now();
+viewer.scene.postRender.addEventListener(()=>{
+  if(!fpsToggle.checked){fpsFrames=0;fpsStart=performance.now();return}
+  fpsFrames++;const now=performance.now(),elapsed=now-fpsStart;
+  if(elapsed>=1000){fpsCounter.textContent=Math.round(fpsFrames*1000/elapsed)+' FPS';fpsFrames=0;fpsStart=now}
+});
 qualitySelect.onchange=()=>{try{localStorage.setItem('panoptes-quality',qualitySelect.value)}catch{}applyQuality()};
 window.addEventListener('online',applyQuality);
 navigator.connection?.addEventListener?.('change',()=>{if(qualitySelect.value==='auto')applyQuality()});
