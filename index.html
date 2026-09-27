@@ -7,7 +7,7 @@
 <title>PANOPTES</title>
 <link rel="icon" type="image/png" href="assets/eye.png">
 <link href="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 <div id="boot">
@@ -26,7 +26,7 @@
   </div>
   <button id="options-btn" class="glass" aria-label="Options" aria-expanded="false">&#8942;</button><div id="options-menu" class="glass hidden"><button id="settings-option">Settings</button><button id="about-option">Info</button><button id="help-option">Help</button><button id="faq-option">FAQ</button><button id="contact-option">Contact</button><button id="support-option">Support</button><button id="flight-option" disabled>Flights paused</button></div>
 </div>
-<button id="compass" class="glass" title="Face north" aria-label="Face north"><span id="compass-needle"><b>N</b><i class="north-tip"></i><i class="south-tip"></i><small>S</small></span><span id="heading-readout">N</span></button>
+<button id="compass" class="glass" title="Face north" aria-label="Face north"><span id="compass-needle" aria-hidden="true"><i class="needle-arrow"></i></span></button>
 <nav id="layers" class="glass hidden" aria-label="View angle"><span id="layer-highlight"></span><button data-layer="2d" aria-pressed="true">2D</button><button data-layer="3d" aria-pressed="false">3D</button></nav><div id="flight-status" class="glass" role="button" tabindex="0" aria-label="Flight layer unavailable">Flights paused</div>
 <div id="flight-card" class="glass hidden" aria-live="polite"><button id="flight-close" aria-label="Close flight details">&times;</button><div id="flight-detail"></div></div>
 <div id="settings" class="glass hidden" role="dialog" aria-label="Settings"><button id="settings-close" aria-label="Close settings">&times;</button><h2>Settings</h2><label for="quality">Quality / Resolution</label><select id="quality"><option value="auto">Auto</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><div class="settings-row"><span>Languages</span><small>English for now</small></div><div class="settings-row"><span>Famous Places</span><small>Search for landmarks above</small></div></div>
@@ -52,6 +52,6 @@
 <div id="support" class="glass hidden" role="dialog"><button class="aux-close" aria-label="Close">&times;</button><h2>Support</h2><p>Support contact has not been set yet.</p></div>
 
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Cesium.js"></script>
-<script src="app.js?v=13"></script>
+<script src="app.js?v=14"></script>
 </body>
 </html>

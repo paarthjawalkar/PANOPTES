@@ -181,7 +181,6 @@ function syncCompass() {
   const h=((Cesium.Math.toDegrees(viewer.camera.heading)%360)+360)%360;
   const compassDirection=['N','NE','E','SE','S','SW','W','NW'][Math.round(h/45)%8];
   document.getElementById('compass-needle').style.transform = `rotate(${-h}deg)`;
-  document.getElementById('heading-readout').textContent=compassDirection;
   compass.setAttribute('aria-label',`Heading ${compassDirection}; tap to face north`);
 }
 viewer.camera.changed.addEventListener(syncCompass);
@@ -401,7 +400,7 @@ canvas.addEventListener('touchmove',e=>{
   const g=gesture(e.touches);let d=g.angle-twistAngle;
   if(d>Math.PI)d-=Math.PI*2;if(d< -Math.PI)d+=Math.PI*2;
   const zooming=Math.abs(g.distance-twistDistance)>Math.max(10,twistDistance*.08);
-  if(!zooming&&Math.abs(d)>Cesium.Math.toRadians(3)){viewer.camera.twistRight(d);twistAngle=g.angle;viewer.scene.requestRender()}
+  if(!zooming&&Math.abs(d)>Cesium.Math.toRadians(3)){viewer.camera.twistRight(-d);twistAngle=g.angle;viewer.scene.requestRender()}
   twistDistance=g.distance;
 }, {passive:true});
 canvas.addEventListener('touchend',e=>{if(e.touches.length!==2)twistAngle=null},{passive:true});
