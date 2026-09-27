@@ -177,17 +177,22 @@ viewer.camera.moveEnd.addEventListener(() => {
 });
 
 const layerBtns = [...document.querySelectorAll('[data-layer]')];
-function selectLayer(btn) {
-  layerBtns.forEach(b => {b.classList.toggle('selected', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');});
+function selectLayer(btn, initial = false) {
+  if (!btn) return;
+  layerBtns.forEach(b => { b.classList.toggle('selected', b === btn); b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
   const track = document.getElementById('layer-highlight'), bar = document.getElementById('layers');
   const a=btn.getBoundingClientRect(), p=bar.getBoundingClientRect();
   track.style.width=`${a.width}px`; track.style.transform=`translateX(${a.left-p.left}px)`;
-  if (window.osmBuildings) window.osmBuildings.show = btn.dataset.layer !== 'earth';
-  const wash=document.getElementById('scene-wash');
-  wash.classList.remove('switching'); void wash.offsetWidth; wash.classList.add('switching');
-  setTimeout(() => wash.classList.remove('switching'), 600);
-  document.getElementById('info').classList.add('hidden');
+  const is3D = btn.dataset.layer === '3d';
+  if (window.osmBuildings) window.osmBuildings.show = is3D;
+  if (!initial) {
+    const wash=document.getElementById('scene-wash');
+    wash.classList.remove('switching'); void wash.offsetWidth; wash.classList.add('switching');
+    setTimeout(() => wash.classList.remove('switching'), 600);
+    if (is3D) viewer.scene.morphTo3D(1.15);
+    else viewer.scene.morphTo2D(1.15);
+  }
 }
 layerBtns.forEach(b => b.onclick = () => selectLayer(b));
-requestAnimationFrame(() => selectLayer(layerBtns[0]));
-window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[0]));
+requestAnimationFrame(() => selectLayer(layerBtns.find(b => b.dataset.layer === '3d'), true));
+window.addEventListener('resize', () => selectLayer(document.querySelector('[data-layer].selected') || layerBtns[1], true));

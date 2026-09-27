@@ -52,3 +52,11 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-appl
 #layers{border-color:rgba(255,255,255,.28);background:rgba(12,14,18,.55)}
 #layer-highlight{background:linear-gradient(140deg,rgba(255,255,255,.35),rgba(159,180,197,.18) 60%,rgba(255,255,255,.26));backdrop-filter:blur(18px) saturate(155%);-webkit-backdrop-filter:blur(18px) saturate(155%);border-color:rgba(255,255,255,.4);box-shadow:inset 0 1px 2px rgba(255,255,255,.48),0 3px 12px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:reduce){#scene-wash.switching{animation:none}}
+
+/* Segmented map view, floating like the reference rather than a dock across the screen. */
+#layers{left:50%;right:auto;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 40px);justify-content:center;padding:5px;border-radius:999px;background:rgba(24,24,29,.44);backdrop-filter:blur(24px) saturate(135%);-webkit-backdrop-filter:blur(24px) saturate(135%);border:1px solid rgba(255,255,255,.27);box-shadow:inset 0 1px 1px rgba(255,255,255,.32),0 8px 24px rgba(0,0,0,.28)}
+#layers button{min-width:85px;min-height:42px;border-radius:999px;font-size:14px;letter-spacing:.01em}
+#layer-highlight{height:42px;border-radius:999px;background:linear-gradient(145deg,rgba(255,255,255,.38),rgba(173,180,189,.16) 65%,rgba(255,255,255,.22));box-shadow:inset 0 1px 2px rgba(255,255,255,.5),0 3px 10px rgba(0,0,0,.16)}
+#flight-status{position:fixed;bottom:calc(82px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:18;padding:7px 12px;border-radius:999px;font:500 11px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:rgba(255,255,255,.62);white-space:nowrap;background:rgba(20,20,25,.34);border-color:rgba(255,255,255,.12)}
+#place-label{bottom:calc(120px + env(safe-area-inset-bottom))}
+@media (max-width:520px){#layers{left:50%;right:auto;transform:translateX(-50%);justify-content:center}#layers button{min-width:82px}}

@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v5
+Add 2D/3D view-angle controls on the same globe.
+
 ## v4
 Hide impossible building-height outliers and color buildings by reported material.
 
