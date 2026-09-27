@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v9
+Load CesiumJS from its CDN instead of bundling the library.
+
 ## v8
 Keep pinch as zoom rather than tilt; add a compass and remove old service workers.
 
