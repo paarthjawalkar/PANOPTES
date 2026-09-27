@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v4
+Hide impossible building-height outliers and color buildings by reported material.
+
 ## v3
 Improve place search and camera flights toward selected results.
 

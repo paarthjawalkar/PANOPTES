@@ -24,7 +24,18 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
   } catch (e) { console.warn('terrain unavailable', e); }
   try {
     const osm = await Cesium.createOsmBuildingsAsync();
-    osm.style = new Cesium.Cesium3DTileStyle({ color: "color('#dfe6ee', 0.9)" });
+    osm.style = new Cesium.Cesium3DTileStyle({
+      // OSM height data occasionally contains impossible values. Hide these outliers,
+      // without deforming valid landmark geometry such as the 330m Eiffel Tower.
+      show: "${feature['cesium#estimatedHeight']} === null || (${feature['cesium#estimatedHeight']} >= 0 && ${feature['cesium#estimatedHeight']} < 900)",
+      color: { conditions: [
+        ["${feature['building:material']} === 'glass'", "color('#b9d2db', 0.76)"],
+        ["${feature['building:material']} === 'brick'", "color('#ad8274', 0.88)"],
+        ["${feature['building:material']} === 'concrete'", "color('#c5c4bd', 0.9)"],
+        ["${feature['building:material']} === 'stone'", "color('#c9bca7', 0.92)"],
+        ["true", "color('#d3d5d2', 0.84)"],
+      ]},
+    });
     viewer.scene.primitives.add(osm); window.osmBuildings = osm;
   } catch (e) { console.warn('buildings unavailable', e); }
 })();
@@ -175,8 +186,7 @@ function selectLayer(btn) {
   const wash=document.getElementById('scene-wash');
   wash.classList.remove('switching'); void wash.offsetWidth; wash.classList.add('switching');
   setTimeout(() => wash.classList.remove('switching'), 600);
-  if (btn.dataset.layer === 'about') document.getElementById('info').classList.remove('hidden');
-  else document.getElementById('info').classList.add('hidden');
+  document.getElementById('info').classList.add('hidden');
 }
 layerBtns.forEach(b => b.onclick = () => selectLayer(b));
 requestAnimationFrame(() => selectLayer(layerBtns[0]));
