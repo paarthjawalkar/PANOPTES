@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v6
+Tune atmosphere, water, and horizon appearance.
+
 ## v5
 Add 2D/3D view-angle controls on the same globe.
 

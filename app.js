@@ -9,9 +9,22 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
 viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#0a1420');
 viewer.scene.backgroundColor = Cesium.Color.BLACK;
 viewer.scene.globe.enableLighting = true;
+// Gentle blue limb and horizon haze. Keep Cesium's native sky/ground scattering,
+// rather than overlaying a screen-space halo that would drift as the camera moves.
+viewer.scene.skyAtmosphere.show = true;
+viewer.scene.skyAtmosphere.brightnessShift = 0.24;
+viewer.scene.skyAtmosphere.saturationShift = 0.18;
+viewer.scene.skyAtmosphere.atmosphereLightIntensity = 60;
+viewer.scene.globe.showGroundAtmosphere = true;
+viewer.scene.globe.atmosphereBrightnessShift = 0.12;
+viewer.scene.globe.atmosphereSaturationShift = 0.06;
+viewer.scene.fog.enabled = true;
+viewer.scene.fog.density = 0.00018;
 viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 2);
 viewer.scene.fxaa = true;
 viewer.scene.postProcessStages.fxaa.enabled = true;
+viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+viewer.scene.screenSpaceCameraController.minimumZoomDistance = 80;
 viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 22000000) });
 
 (async () => {
