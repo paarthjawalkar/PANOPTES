@@ -138,3 +138,18 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-appl
 #compass-needle .needle-arrow{position:absolute;inset:0;display:block;width:26px;height:26px;border:0;margin:0;background:linear-gradient(165deg,#ff6b62 0 49%,#ecf6fc 50% 100%);clip-path:polygon(50% 0,84% 70%,58% 60%,50% 82%,42% 60%,16% 70%);filter:drop-shadow(0 1px 2px #071018)}
 #heading-readout,#compass-needle b,#compass-needle small,#compass-needle .north-tip,#compass-needle .south-tip{display:none!important}
 @media(prefers-reduced-motion:reduce){#brand,#searchbox,#options-btn,#compass,#layers,#flight-status,#layer-highlight{transition:none}}
+
+/* v15 Android touch feedback: keep highlight clipped to rounded controls. */
+button,[role="button"],#compass,#brand { -webkit-tap-highlight-color:transparent; outline-offset:2px; }
+button:focus:not(:focus-visible),[role="button"]:focus:not(:focus-visible) { outline:none; }
+button:focus-visible,[role="button"]:focus-visible { outline:2px solid rgba(180,230,255,.8);border-radius:999px; }
+
+/* v15: preserve the eye silhouette with a white alpha glyph; do not invert its pupil into a black rectangle. */
+#brand .brand-eye{filter:drop-shadow(0 1px 2px rgba(0,0,0,.8)) drop-shadow(0 0 5px rgba(0,0,0,.42));}
+html,body,body *,body *::before,body *::after{-webkit-tap-highlight-color:transparent!important;}
+
+#settings input[type=checkbox]{width:21px;height:21px;accent-color:#8acaff;flex:none}
+#settings input[type=range]{width:46%;accent-color:#8acaff}
+#settings .settings-row label{margin:0;align-self:center}
+.reduce-motion #scene-wash.switching,.reduce-motion #place-label.glitch-in{animation:none!important}
+.reduce-motion #layer-highlight,.reduce-motion #layers button,.reduce-motion #brand,.reduce-motion #searchbox,.reduce-motion #compass{animation:none!important;transition:none!important}

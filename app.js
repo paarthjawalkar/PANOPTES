@@ -19,12 +19,12 @@ viewer.scene.globe.oceanNormalMapUrl = Cesium.buildModuleUrl("Assets/Textures/wa
 viewer.scene.skyAtmosphere.show = true;
 viewer.scene.skyAtmosphere.brightnessShift = 0.24;
 viewer.scene.skyAtmosphere.saturationShift = 0.18;
-viewer.scene.skyAtmosphere.atmosphereLightIntensity = 60;
+viewer.scene.skyAtmosphere.atmosphereLightIntensity = 12;
 viewer.scene.globe.showGroundAtmosphere = true;
 viewer.scene.globe.atmosphereBrightnessShift = 0.12;
 viewer.scene.globe.atmosphereSaturationShift = 0.06;
 viewer.scene.fog.enabled = true;
-viewer.scene.fog.density = 0.00018;
+viewer.scene.fog.density = 0.00005;
 viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 2);
 viewer.scene.fxaa = true;
 viewer.scene.postProcessStages.fxaa.enabled = true;
@@ -368,7 +368,7 @@ document.getElementById('settings-option').onclick=()=>{optionsMenu.classList.ad
 document.getElementById('settings-close').onclick=()=>settings.classList.add('hidden');
 let savedQuality='auto';try{savedQuality=localStorage.getItem('panoptes-quality')||'auto'}catch{}
 if(['auto','low','medium','high'].includes(savedQuality))qualitySelect.value=savedQuality;
-const qualityScores={low:{scale:.85,sse:16,tiles:300},medium:{scale:1,sse:12,tiles:500},high:{scale:1.5,sse:8,tiles:900}};
+const qualityScores={low:{scale:.85,sse:16,tiles:300},medium:{scale:1.2,sse:10,tiles:500},high:{scale:1.5,sse:8,tiles:900}};
 function autoQuality(){
   const c=navigator.connection||{};
   const slow=['slow-2g','2g','3g'].includes(c.effectiveType)||c.saveData||Number(c.downlink||10)<1.8;
@@ -379,7 +379,9 @@ function applyQuality(){
   const name=qualitySelect.value==='auto'?autoQuality():qualitySelect.value,p=qualityScores[name];
   viewer.resolutionScale=Math.min(window.devicePixelRatio||1,p.scale);
   viewer.scene.globe.maximumScreenSpaceError=p.sse;
-  viewer.scene.fog.enabled=name!=='low';
+  viewer.scene.fog.enabled=name!=='low'&&viewer.camera.positionCartographic.height>120000;
+  // Android fragment precision can wash out ground atmosphere at close range.
+  viewer.scene.globe.showGroundAtmosphere=viewer.camera.positionCartographic.height>350000;
   viewer.scene.globe.showWaterEffect=name==='high'||(name==='medium'&&viewer.camera.positionCartographic.height<100000);
   if(window.osmBuildings){window.osmBuildings.maximumScreenSpaceError=p.sse;window.osmBuildings.maximumMemoryUsage=p.tiles}
   viewer.scene.requestRender();
@@ -388,6 +390,7 @@ qualitySelect.onchange=()=>{try{localStorage.setItem('panoptes-quality',qualityS
 window.addEventListener('online',applyQuality);
 navigator.connection?.addEventListener?.('change',()=>{if(qualitySelect.value==='auto')applyQuality()});
 applyQuality();
+viewer.camera.changed.addEventListener(()=>{const h=viewer.camera.positionCartographic.height;viewer.scene.fog.enabled=qualitySelect.value!=='low'&&h>120000;viewer.scene.globe.showGroundAtmosphere=h>350000});
 
 /* Deliberate two-finger twist rolls the camera; a normal pinch remains zoom-only.
    Keep a dead zone so slight finger jitter during zoom-out does not spin the view. */
@@ -405,3 +408,25 @@ canvas.addEventListener('touchmove',e=>{
 }, {passive:true});
 canvas.addEventListener('touchend',e=>{if(e.touches.length!==2)twistAngle=null},{passive:true});
 canvas.addEventListener('touchcancel',()=>{twistAngle=null},{passive:true});
+
+/* Optional device feedback. Default vibration follows the user's Android request;
+   sound remains off until the user enables it, and never plays before interaction. */
+const feedback={haptics:document.getElementById('haptics'),sound:document.getElementById('sound'),volume:document.getElementById('volume'),motion:document.getElementById('motion')};
+for(const [key,el] of Object.entries(feedback)){
+  const v=localStorage.getItem('panoptes-'+key);
+  if(v!==null){if(el.type==='checkbox')el.checked=v==='true';else el.value=v}
+  el.addEventListener('change',()=>{localStorage.setItem('panoptes-'+key,el.type==='checkbox'?String(el.checked):el.value);if(key==='motion')document.documentElement.classList.toggle('reduce-motion',el.checked)});
+}
+document.documentElement.classList.toggle('reduce-motion',feedback.motion.checked);
+let soundContext;let lastGestureBuzz=0;
+function feedbackPulse(kind='tap'){
+  if(feedback.haptics.checked&&navigator.vibrate)navigator.vibrate(kind==='gesture'?8:12);
+  if(!feedback.sound.checked)return;
+  try{soundContext??=new (window.AudioContext||window.webkitAudioContext)();const o=soundContext.createOscillator(),g=soundContext.createGain(),now=soundContext.currentTime;
+    o.type='sine';o.frequency.setValueAtTime(kind==='gesture'?410:520,now);o.frequency.exponentialRampToValueAtTime(330,now+.045);
+    g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(Math.max(.0001,Number(feedback.volume.value)/100*.018),now+.006);g.gain.exponentialRampToValueAtTime(.0001,now+.065);
+    o.connect(g).connect(soundContext.destination);o.start(now);o.stop(now+.07);
+  }catch{}
+}
+document.addEventListener('click',e=>{if(e.target.closest('button,#brand,[role="button"]'))feedbackPulse()},{capture:true});
+canvas.addEventListener('touchend',e=>{if(e.changedTouches.length&&Date.now()-lastGestureBuzz>300){lastGestureBuzz=Date.now();feedbackPulse('gesture')}},{passive:true});

@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v15
+Reduce close-up atmosphere washout and refine mobile visual assets.
+
 ## v14
 Reverse twist direction for Android retest and simplify the compass needle.
 
