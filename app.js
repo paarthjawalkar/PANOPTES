@@ -54,7 +54,7 @@ viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 220000
         ["${feature['building:material']} === 'brick'", "color('#ad8274', 0.88)"],
         ["${feature['building:material']} === 'concrete'", "color('#c5c4bd', 0.9)"],
         ["${feature['building:material']} === 'stone'", "color('#c9bca7', 0.92)"],
-        ["true", "color('#d3d5d2', 0.84)"],
+        ["true", "color('#bcbfc0', 0.92)"],
       ]},
     });
     viewer.scene.primitives.add(osm); window.osmBuildings = osm; syncViewControl();
@@ -477,7 +477,20 @@ canvas.addEventListener('touchmove',e=>{
   // proportional to altitude so the movement stays continuous at any height.
   if(Math.abs(dy)>0.1){const distance=height*(Math.exp(Math.abs(dy)*.008)-1);if(dy>0)viewer.camera.zoomIn(distance);else viewer.camera.zoomOut(distance);viewer.scene.requestRender()}
 },{passive:false});
-function endHoldZoom(){clearTimeout(holdTimer);holdCandidate=false;if(holdZoom){holdZoom=false;viewer.scene.screenSpaceCameraController.enableInputs=true}}
+function endHoldZoom(e){
+  clearTimeout(holdTimer);
+  if(holdCandidate&&!holdZoom&&e.type==='touchend'){
+    // Second tap released without a hold: zoom toward the tap itself.
+    const t=e.changedTouches[0];if(t){
+      const pos=new Cesium.Cartesian2(t.clientX,t.clientY);
+      const hit=viewer.camera.pickEllipsoid(pos);
+      if(hit){const c=Cesium.Cartographic.fromCartesian(hit),h=Math.max(120,viewer.camera.positionCartographic.height*.58);
+        viewer.camera.flyTo({destination:Cesium.Cartesian3.fromRadians(c.longitude,c.latitude,h),orientation:{heading:viewer.camera.heading,pitch:viewer.camera.pitch,roll:viewer.camera.roll},duration:.35});}
+      else viewer.camera.zoomIn(Math.max(80,viewer.camera.positionCartographic.height*.42));
+    }
+  }
+  holdCandidate=false;if(holdZoom){holdZoom=false;viewer.scene.screenSpaceCameraController.enableInputs=true}
+}
 canvas.addEventListener('touchend',endHoldZoom,{passive:true});
 canvas.addEventListener('touchcancel',endHoldZoom,{passive:true});
 function gesture(t){const a=t[0],b=t[1];return {angle:Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX),distance:Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY)}}
@@ -511,7 +524,7 @@ function gestureDetent(speed){
   const spacing=145-fast*95;
   if(now-lastDetent<spacing)return;
   lastDetent=now;
-  navigator.vibrate(fast>.7?[16,12,18]:fast>.32?[11,20,12]:[6]);
+  navigator.vibrate(fast>.7?[11,14,9]:fast>.32?[8,19,7]:[5]);
 }
 canvas.addEventListener('touchstart',e=>{lastTouchSample=e.touches.length?{x:e.touches[0].clientX,y:e.touches[0].clientY,t:performance.now()}:null},{passive:true});
 canvas.addEventListener('touchmove',e=>{
@@ -523,7 +536,7 @@ canvas.addEventListener('touchmove',e=>{
 canvas.addEventListener('touchend',e=>{if(!e.touches.length)lastTouchSample=null},{passive:true});
 canvas.addEventListener('touchcancel',()=>{lastTouchSample=null},{passive:true});
 function feedbackPulse(kind='tap'){
-  if(feedback.haptics.checked&&navigator.vibrate)navigator.vibrate(kind==='gesture'?[10,22,11]:[12,25,15]);
+  if(feedback.haptics.checked&&navigator.vibrate)navigator.vibrate(kind==='gesture'?[7,18,7]:[9]);
   if(!feedback.sound.checked)return;
   try{soundContext??=new (window.AudioContext||window.webkitAudioContext)();const o=soundContext.createOscillator(),g=soundContext.createGain(),now=soundContext.currentTime;
     o.type='sine';o.frequency.setValueAtTime(kind==='gesture'?410:520,now);o.frequency.exponentialRampToValueAtTime(330,now+.045);

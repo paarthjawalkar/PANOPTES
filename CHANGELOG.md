@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v23
+Add plain double-tap zoom toward the touch, shorter haptic ticks, and warmer OSM building shading for phone testing.
+
 ## v22
 Add speed-based haptic detents and lower Auto resolution at high FPS targets for a performance test.
 
