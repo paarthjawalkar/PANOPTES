@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>PANOPTES</title>
+<link rel="icon" type="image/png" href="assets/eye.png">
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="boot">
+  <img id="boot-eye" src="assets/eye.png" alt="">
+  <img id="boot-name" src="assets/wordmark.png" alt="PANOPTES">
+</div>
+<div id="cesiumContainer"></div>
+<div id="hud">
+  <div id="brand" class="glass"><img class="brand-eye" src="assets/eye.png" alt=""><img class="brand-word" src="assets/wordmark.png" alt="PANOPTES"></div>
+  <div id="searchbox" class="glass">
+    <input id="q" type="search" placeholder="Search places, landmarks..." autocomplete="off" enterkeyhint="search">
+    <button id="mic" title="Voice search" aria-label="Voice search">&#8978;</button>
+    <div id="suggest"></div>
+  </div>
+  <button id="info-btn" class="glass" aria-label="About">i</button>
+</div>
+<div id="info" class="glass hidden">
+  <button id="info-close" aria-label="Close">&times;</button>
+  <h2>PANOPTES</h2>
+  <p>A lightweight live Earth explorer: continuous 3D zoom, real terrain and city buildings, and famous-place search.</p>
+  <p class="muted">Data: Cesium ion (world terrain, Bing imagery, OSM Buildings), OpenStreetMap contributors, Wikipedia/Wikidata, OSM Nominatim. Not for navigation.</p>
+</div>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.120/Build/Cesium/Cesium.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
