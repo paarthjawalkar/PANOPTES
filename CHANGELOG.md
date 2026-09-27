@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v10
+Refine PANOPTES assets and publish the current production baseline.
+
 ## v9
 Load CesiumJS from its CDN instead of bundling the library.
 
