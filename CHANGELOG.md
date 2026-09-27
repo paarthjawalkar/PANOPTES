@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v17
+Make the control housings clearer while keeping the moving lens frosted.
+
 ## v16
 Sharpen globe imagery by tightening tile refinement and render resolution.
 
