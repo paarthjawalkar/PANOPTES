@@ -20,4 +20,4 @@ Ideas and bug reports are welcome through GitHub Issues. Please include your dev
 - [Wikipedia](https://www.wikipedia.org/) and [Wikidata](https://www.wikidata.org/) for landmark search.
 - [Nasalization](https://www.typodermicfonts.com/nasalization/) by Typodermic Fonts for the supplied static wordmark image. Rights to the image/font are not granted by this repository.
 
-No broad open-source license is granted to this repository or the supplied wordmark. Dataset and library terms remain with their respective owners.
+The original PANOPTES application code is available under the PolyForm Noncommercial License 1.0.0. You may copy, modify, run, and share it for permitted noncommercial purposes if you keep the license and this credit. Commercial use is not permitted without a separate license from Paarth Jawalkar. The software is provided as is, without warranty or liability to the extent the law allows. Third-party libraries, imagery, terrain, building data, models, and fonts retain their own licenses and are not relicensed by us.
