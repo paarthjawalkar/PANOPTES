@@ -8,6 +8,18 @@ The `main` branch records numbered development snapshots. v27.0.27b is the curre
 
 The history was recreated from saved release archives. Credential strings in all revisions were replaced with placeholders. Bundled Cesium library files were removed in favor of CDN links. To run locally, replace `REPLACE_WITH_YOUR_CESIUM_ION_TOKEN` in `app.js` with your own token outside a public commit, then serve the directory from a static web server. Do not commit credential-bearing copies or archives. External data-provider terms apply.
 
+## Screenshots
+
+Public BASIC v27.0.27b, captured in a desktop browser and a 390 × 844 mobile-sized browser viewport. The mobile capture is not a physical-device or FPS test. Aerial imagery and terrain are provided through Cesium ion; these are views of the app, not original photographs or photorealistic landmark models. Flights are paused in these captures.
+
+| Desktop globe | Mobile-sized globe |
+|:---:|:---:|
+| ![PANOPTES desktop globe showing Europe and Africa](1-basic-globe-desktop.png) | ![PANOPTES globe and controls in a mobile-sized browser viewport](2-basic-globe-mobile.png) |
+
+| Venice canals | Lisbon waterfront | Giza pyramids |
+|:---:|:---:|:---:|
+| ![PANOPTES aerial imagery of Venice and its canals](5-venice-aerial.png) | ![PANOPTES aerial imagery of Lisbon's waterfront](4-lisbon-aerial.png) | ![PANOPTES aerial imagery showing two Giza pyramids](3-giza-pyramids.png) |
+
 ## Feedback
 
 Ideas and bug reports are welcome through GitHub Issues. Please include your device, browser, steps to reproduce, and a screenshot when useful. We'll review suggestions there.
