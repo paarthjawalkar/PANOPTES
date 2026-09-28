@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v24-preview (diagnostic, not production)
+Show coarser globe imagery sooner and defer OSM Buildings until the first globe tiles settle, with a 6.5-second fallback. Boot could still wait too long.
+
 ## v23
 Add plain double-tap zoom toward the touch, shorter haptic ticks, and warmer OSM building shading for phone testing.
 

@@ -178,3 +178,299 @@ html,body,body *,body *::before,body *::after{-webkit-tap-highlight-color:transp
 
 #fps-counter{position:fixed;left:12px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;min-width:52px;padding:7px 9px;border-radius:14px;color:white;font:600 11px/1.1 system-ui,sans-serif;text-align:center;pointer-events:none;text-shadow:0 1px 4px black;background:rgba(3,9,14,.4)}
 #fps-counter[hidden]{display:none}
+
+/* v25: compact ISS controls, away from the upper HUD and flight status. */
+#iss-controls{position:fixed;z-index:24;right:10px;bottom:calc(48px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;color:#fff;padding:6px 10px;border-radius:19px;max-width:calc(100vw - 20px);font:11px/1.2 system-ui,sans-serif;background:rgba(7,18,29,.5);backdrop-filter:blur(12px)}
+#iss-controls button{border:1px solid rgba(255,255,255,.4);border-radius:13px;background:rgba(255,255,255,.12);padding:6px 9px;color:white;font:inherit;cursor:pointer;white-space:nowrap}
+#iss-controls button[disabled]{opacity:.48;cursor:not-allowed}
+#iss-controls button[aria-pressed=true]{background:rgba(110,188,255,.35)}
+#iss-status{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dbeaff}
+@media(max-width:520px){#iss-controls{bottom:calc(12px + env(safe-area-inset-bottom));right:8px}#iss-status{max-width:70px}}
+
+/* ISS v26: compact readable mission panel. */
+#iss-card,#css-card{position:fixed;z-index:35;right:12px;top:calc(68px + env(safe-area-inset-top));width:min(355px,calc(100vw - 46px));max-height:calc(100dvh - 155px);overflow:auto;color:#effaff;padding:21px;background:rgba(7,18,29,.83);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 18px 50px rgba(0,0,0,.55)}
+#iss-card.hidden,#css-card.hidden{display:none}#iss-card h2,#css-card h2{font-size:19px;line-height:1.25;margin:5px 24px 17px 0}#iss-card button,#css-card button{font:inherit;cursor:pointer;color:white}#iss-close,#css-close{position:absolute;right:13px;top:11px;border:0;background:none;font-size:27px!important}
+.iss-kicker{font-size:10px;letter-spacing:.18em;color:#8bd9ff;font-weight:800}.iss-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.iss-facts>div{padding:9px;background:rgba(255,255,255,.07);border-radius:10px}.iss-facts strong{display:block;font-size:17px;letter-spacing:-.02em}.iss-facts span{font-size:10px;color:#acc1d0;text-transform:uppercase;letter-spacing:.07em}#iss-card p,#iss-card details,#css-card p{font-size:12px;line-height:1.55}.iss-small,.iss-credit{color:#a5b5c1}.iss-credit{font-size:10px!important}.iss-links{display:flex;gap:12px;flex-wrap:wrap}#iss-card a,#css-card a{color:#8bd9ff}#iss-cam-button{border:1px solid rgba(139,217,255,.4);border-radius:10px;padding:10px 12px;background:rgba(90,165,205,.14)}#iss-cam iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000}#iss-card summary{cursor:pointer;color:#d8f0ff}
+@media(max-width:520px){#iss-card,#css-card{top:calc(65px + env(safe-area-inset-top));left:8px;right:8px;width:auto;max-height:calc(100dvh - 155px)}}
+
+.iss-cam-buttons{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.iss-cam-buttons button{border:1px solid rgba(139,217,255,.4);border-radius:10px;padding:9px 10px;background:rgba(90,165,205,.14);font-size:11px!important}
+/* ISS card uses the same matte capsule and transparent glass as the bottom view control. */
+#iss-card,#css-card{background:linear-gradient(145deg,rgba(24,29,39,.63),rgba(8,18,29,.67));backdrop-filter:blur(26px) saturate(145%);-webkit-backdrop-filter:blur(26px) saturate(145%);border:1px solid rgba(255,255,255,.27);border-radius:23px;box-shadow:inset 0 1px 1px rgba(255,255,255,.31),0 18px 50px rgba(0,0,0,.46);animation:issglass .45s cubic-bezier(.18,1.25,.38,1) both}
+.iss-cam-buttons{border:1px solid rgba(255,255,255,.25);padding:4px;border-radius:999px;background:rgba(22,26,36,.45);width:max-content;max-width:100%}.iss-cam-buttons button{border-radius:999px;border:0;background:rgba(255,255,255,.12);box-shadow:inset 0 1px 1px rgba(255,255,255,.19)}
+@keyframes issglass{from{opacity:0;translate:0 14px;filter:blur(4px)}to{opacity:1;translate:0 0;filter:blur(0)}}@media(prefers-reduced-motion:reduce){#iss-card,#css-card{animation:none}}
+
+.crew-list{list-style:none;margin:8px 0;padding:0;display:grid;gap:6px}.crew-list li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.12);font-size:12px}.crew-list span{color:#a9bccb;text-align:right;font-size:10px}
+
+/* Keep the close action fixed as the mission card scrolls on a phone. */
+#iss-close,#css-close{position:sticky;float:right;top:0;right:auto;z-index:3;margin:-7px -7px 0 8px;width:34px;height:34px;border-radius:50%!important;background:rgba(13,21,30,.75)!important;backdrop-filter:blur(15px)}
+#iss-card,#css-card{overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(155,208,238,.5) transparent}
+
+/* Android long-press should manipulate the globe or controls, not select labels. */
+#cesiumContainer,#hud,#iss-controls,#iss-card,#css-card,#flight-status,#fps-counter,#compass,#place-label{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#q{user-select:text;-webkit-user-select:text;-webkit-touch-callout:default}
+
+@media(max-width:520px){#iss-controls{gap:9px;padding:6px 8px}#iss-controls button{min-height:35px;touch-action:manipulation;position:relative}#iss-toggle{min-width:47px}#css-toggle{min-width:79px}#iss-status{max-width:87px}}
+
+/* v26.1.1: stable mobile hit targets: async status changes cannot move buttons. */
+@media(max-width:520px){#iss-controls{width:min(358px,calc(100vw - 16px));display:grid;grid-template-columns:49px minmax(93px,1fr) 85px;gap:5px;box-sizing:border-box}#iss-toggle,#iss-center,#css-toggle{width:100%;box-sizing:border-box;min-height:42px;touch-action:manipulation;-webkit-user-select:none;user-select:none}#iss-status{grid-column:1/-1;max-width:none;min-height:13px;text-align:center;pointer-events:none}#iss-controls button[disabled],#iss-controls button *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}}
+
+@media(max-width:520px){#iss-controls button{min-height:42px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}}
+
+/* v26.1.2: neutral, soft glass. Buttons retain independent state. */
+#iss-controls{background:linear-gradient(145deg,rgba(78,78,81,.26),rgba(18,18,20,.44));-webkit-backdrop-filter:blur(25px) saturate(112%);backdrop-filter:blur(25px) saturate(112%);border:1px solid rgba(255,255,255,.24);border-radius:29px;box-shadow:inset 0 1px 1px rgba(255,255,255,.26),inset 0 -1px 1px rgba(255,255,255,.08),0 10px 24px rgba(0,0,0,.22);transition:background .5s ease,box-shadow .5s ease,border-color .5s ease}
+#iss-controls button{border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(124,124,130,.15);box-shadow:inset 0 1px 1px rgba(255,255,255,.12);transition:background .48s cubic-bezier(.2,.8,.2,1),box-shadow .48s cubic-bezier(.2,.8,.2,1),border-color .48s cubic-bezier(.2,.8,.2,1),transform .48s cubic-bezier(.2,.8,.2,1),opacity .35s ease}
+#iss-controls button[aria-pressed=true]{background:rgba(208,208,213,.25);border-color:rgba(255,255,255,.35);box-shadow:inset 0 1px 2px rgba(255,255,255,.25),0 2px 8px rgba(0,0,0,.14)}
+#iss-controls button:active:not(:disabled){transform:scale(.96)}
+#iss-status{color:#e3e3e7}
+@media(max-width:520px){#iss-controls{width:min(244px,calc(50vw + 46px));right:8px;bottom:calc(12px + env(safe-area-inset-bottom));grid-template-columns:40px minmax(72px,1fr) 74px;gap:5px;padding:7px;border-radius:28px;font-size:10px}#iss-controls button{min-width:0!important;min-height:44px;padding:4px 3px;font-size:10px;white-space:nowrap}#iss-status{min-height:13px;font-size:10px}}
+@media(prefers-reduced-motion:reduce){#iss-controls,#iss-controls button{transition:none}}
+/* v26.1.2 mobile: the right half of the bottom edge, four roomy cells. */
+@media(max-width:520px){
+ #iss-controls{width:calc(50vw - 8px);right:8px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'iss tian' 'follow status';gap:7px;padding:8px;min-height:116px;align-items:stretch;box-sizing:border-box;border-radius:28px}
+ #iss-toggle{grid-area:iss}#css-toggle{grid-area:tian}#iss-center{grid-area:follow}
+ #iss-controls button{min-width:0!important;width:100%;min-height:46px;height:46px;padding:4px 2px;white-space:normal;font-size:10px;line-height:1.05}
+ #iss-status{grid-area:status;display:grid;place-items:center;min-width:0;min-height:46px;max-width:none;padding:0 3px;box-sizing:border-box;border:1px solid rgba(255,255,255,.17);border-radius:999px;background:rgba(115,115,120,.13);font-size:9px;line-height:1.1;white-space:normal;overflow:hidden;text-overflow:clip}
+}
+
+.iss-model-link{display:grid;gap:5px;margin:15px 0}.iss-model-link a{display:inline-block;width:max-content;max-width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,.26);border-radius:999px;background:rgba(160,160,165,.16);color:#fff!important;text-decoration:none;font-size:12px;transition:background .35s ease,transform .35s ease}.iss-model-link a:active{transform:scale(.97)}.iss-model-link span{color:#b8c2c9;font-size:10px}
+/* Glass opacity glides between clear and soft-frosted when station states change. */
+#iss-controls button{isolation:isolate;overflow:hidden;position:relative;z-index:0;background:rgba(180,180,184,.07)}
+#iss-controls button::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:radial-gradient(ellipse at 48% 35%,rgba(235,235,239,.34),rgba(150,150,157,.16) 68%,rgba(115,115,119,.10));-webkit-backdrop-filter:blur(17px);backdrop-filter:blur(17px);opacity:0;transform:translate3d(-18%,0,0) scale(.74);transition:opacity .62s cubic-bezier(.2,.75,.2,1),transform .62s cubic-bezier(.2,.75,.2,1)}
+#iss-controls button[aria-pressed=true]::before{opacity:1;transform:translate3d(0,0,0) scale(1)}
+#iss-controls button[aria-pressed=true]{background:rgba(180,180,184,.14)}
+#iss-controls button:disabled::before{opacity:.08}
+@media(prefers-reduced-motion:reduce){#iss-controls button::before{transition:none}}
+
+/* v26.1.3: mode-aware station lens and local appearance controls. */
+#iss-controls{position:fixed;isolation:isolate}
+#station-lens{position:absolute;left:0;top:0;z-index:0;pointer-events:none;opacity:0;border-radius:999px;box-sizing:border-box;background:linear-gradient(145deg,rgba(226,235,237,.64),rgba(137,151,158,.46));border:1px solid rgba(255,255,255,.53);-webkit-backdrop-filter:blur(20px) saturate(75%);backdrop-filter:blur(20px) saturate(75%);box-shadow:inset 0 1px 1px rgba(255,255,255,.44),0 3px 10px rgba(0,0,0,.24);transition:transform .56s cubic-bezier(.19,1,.22,1),height .56s cubic-bezier(.19,1,.22,1),width .56s cubic-bezier(.19,1,.22,1),opacity .35s ease}
+#station-lens.visible{opacity:1}
+#iss-controls button,#iss-status{position:relative;z-index:1}
+#iss-controls.station-single #iss-toggle[aria-pressed=true],#iss-controls.station-single #css-toggle[aria-pressed=true]{background:transparent;border-color:transparent;box-shadow:none}
+#iss-controls.station-single #iss-toggle::before,#iss-controls.station-single #css-toggle::before{opacity:0}
+#settings input[type=range]#glass-bg,#settings input[type=range]#glass-fg{width:100%;display:block;margin:7px 0 14px;min-height:32px}
+#settings output{float:right;color:#d7e2ea}
+#settings label[for=station-mode]{margin-top:22px}
+:root{--glass-bg-alpha:.50;--ui-foreground-alpha:1}
+/* Theme colors affect interface chrome, never Earth imagery or source credits. */
+:root[data-ui-theme=liquid] #brand,:root[data-ui-theme=liquid] #searchbox,:root[data-ui-theme=liquid] #options-btn,:root[data-ui-theme=liquid] #options-menu,:root[data-ui-theme=liquid] #compass,:root[data-ui-theme=liquid] #layers,:root[data-ui-theme=liquid] #flight-status,:root[data-ui-theme=liquid] #iss-controls{background:rgba(19,22,27,calc(var(--glass-bg-alpha)*.62));-webkit-backdrop-filter:blur(17px) saturate(145%);backdrop-filter:blur(17px) saturate(145%)}
+:root[data-ui-theme=black] #brand,:root[data-ui-theme=black] #searchbox,:root[data-ui-theme=black] #options-btn,:root[data-ui-theme=black] #options-menu,:root[data-ui-theme=black] #compass,:root[data-ui-theme=black] #layers,:root[data-ui-theme=black] #flight-status,:root[data-ui-theme=black] #iss-controls{background:rgba(3,4,7,var(--glass-bg-alpha));-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+:root[data-ui-theme=white] #brand,:root[data-ui-theme=white] #searchbox,:root[data-ui-theme=white] #options-btn,:root[data-ui-theme=white] #options-menu,:root[data-ui-theme=white] #compass,:root[data-ui-theme=white] #layers,:root[data-ui-theme=white] #flight-status,:root[data-ui-theme=white] #iss-controls{background:rgba(250,251,252,var(--glass-bg-alpha));border-color:rgba(8,14,19,.28);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* The controls are semantically foreground. Never fade entire panels, including the map beneath. */
+#hud button,#hud input,#brand .brand-eye,#brand .brand-word,#compass-needle,#layers button,#iss-controls button,#iss-status,#flight-status{opacity:var(--ui-foreground-alpha)}
+:root[data-ui-theme=white] #hud button,:root[data-ui-theme=white] #q,:root[data-ui-theme=white] #q::placeholder,:root[data-ui-theme=white] #layers button,:root[data-ui-theme=white] #iss-controls button,:root[data-ui-theme=white] #iss-status,:root[data-ui-theme=white] #flight-status{color:#08131b;text-shadow:0 1px 1px rgba(255,255,255,.75)}
+:root[data-ui-theme=white] #brand .brand-eye,:root[data-ui-theme=white] #brand .brand-word{filter:brightness(0) drop-shadow(0 1px 1px rgba(255,255,255,.4))}
+:root[data-ui-theme=white] #iss-controls button,:root[data-ui-theme=white] #iss-status{border-color:rgba(4,14,20,.24)}
+:root[data-ui-theme=white] #station-lens{background:linear-gradient(145deg,rgba(250,253,255,.8),rgba(190,198,204,.7));border-color:rgba(30,37,45,.25)}
+.reduce-motion #station-lens,.reduce-motion #iss-controls button::before{transition:none!important}
+@media(prefers-reduced-motion:reduce){#station-lens,#iss-controls button::before{transition:none!important}}
+#iss-controls button:disabled{opacity:calc(var(--ui-foreground-alpha)*.50)}
+/* In-panel navigation only: the main globe and Settings frame never change. */
+#settings{overflow:hidden;max-height:min(75vh,610px);padding:0}
+#settings h2{margin:0 0 14px}
+#settings-close{z-index:4;right:15px;top:12px}
+#settings-track{display:flex;width:200%;align-items:flex-start;transition:transform .46s cubic-bezier(.19,1,.22,1)}
+#settings-track.appearance-open{transform:translateX(-50%)}
+#settings .settings-panel{width:50%;flex:0 0 50%;box-sizing:border-box;max-height:min(75vh,610px);overflow-y:auto;padding:24px 23px 28px;overscroll-behavior:contain}
+#settings .settings-panel[aria-hidden=true]{visibility:hidden}
+#settings-track.appearance-open #settings-appearance{visibility:visible}
+#settings .settings-nav,#settings .settings-back{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;border:1px solid rgba(255,255,255,.22);border-radius:14px;background:rgba(170,190,200,.10);color:#fff;padding:0 13px;font:600 13px system-ui;cursor:pointer;text-align:left;margin:0 0 16px}
+#settings .settings-nav span{font-size:25px;font-weight:300}
+#settings .settings-back{width:auto;border:0;background:transparent;padding:0 10px 0 0;min-height:36px}
+#settings h3{font-size:18px;margin:4px 0 20px}
+.reduce-motion #settings-track{transition:none!important}
+@media(prefers-reduced-motion:reduce){#settings-track{transition:none}}
+/* Both in-panel pages remain painted while the track slides; inert keeps the
+   offscreen form unreachable to keyboard and assistive technology. */
+#settings .settings-panel[aria-hidden=true]{visibility:visible}
+/* v26.1.4: each Settings page is exactly the viewport width. Do not move a
+   200%-wide flex track: mobile Chrome can resolve percentage flex bases and
+   transforms against different containing blocks when backdrop-filtered. */
+#settings{isolation:isolate;overflow:hidden}
+#settings-track{position:relative;display:block;width:100%;height:min(68vh,560px);overflow:hidden;transform:none!important;transition:none!important;contain:layout paint}
+#settings .settings-panel{position:absolute;inset:0;width:100%!important;max-width:none;max-height:none;height:100%;overflow-x:hidden;overflow-y:auto;box-sizing:border-box;padding:24px 23px 28px;transform:translate3d(0,0,0);transition:transform .82s cubic-bezier(.25,.7,.2,1);will-change:transform}
+#settings #settings-appearance{transform:translate3d(100%,0,0)}
+#settings-track.appearance-open #settings-main{transform:translate3d(-100%,0,0)}
+#settings-track.appearance-open #settings-appearance{transform:translate3d(0,0,0)}
+#settings .settings-panel select{min-width:0;max-width:100%;text-overflow:ellipsis}
+#settings .settings-panel input[type=range]{max-width:100%}
+#settings .settings-panel small{overflow-wrap:anywhere}
+@media(max-width:520px){#settings{width:min(370px,calc(100vw - 32px))}#settings-track{height:min(72dvh,610px)}}
+.reduce-motion #settings .settings-panel{transition:none!important}
+@media(prefers-reduced-motion:reduce){#settings .settings-panel{transition:none!important}}
+/* Keep the globe HUD from bleeding through modal content on bright Earth. */
+#settings{background:rgba(8,13,21,.92);-webkit-backdrop-filter:blur(12px) saturate(115%);backdrop-filter:blur(12px) saturate(115%)}
+#settings .settings-panel{scrollbar-width:thin;scrollbar-color:rgba(202,220,233,.38) transparent}
+#settings>h2{padding:0 23px;margin:0 0 14px;line-height:32px}
+#settings-track{height:min(calc(75dvh - 48px),560px)}
+@media(max-width:520px){#settings-track{height:min(calc(75dvh - 48px),560px)}}
+/* v26.1.5: resolved place name sits above the station bar, not under its right half. */
+#place-label{bottom:calc(185px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:520px){#place-label{left:auto;right:12px;bottom:calc(158px + env(safe-area-inset-bottom));transform:none;text-align:right;max-width:calc(100vw - 24px);font-size:clamp(14px,4vw,18px)}}
+@keyframes label-arrive{0%{opacity:0;filter:blur(3px);transform:translateY(7px)}40%{opacity:1;filter:blur(1px)}100%{opacity:1;filter:none;transform:translateY(0)}}
+@media(max-width:520px){#place-label{font-size:clamp(13px,3.6vw,17px);letter-spacing:.06em;max-width:calc(100vw - 24px)}}
+/* Right-edge station pill. Clear outline, quiet glow, transparent center. */
+#station-pill{position:fixed;right:9px;bottom:calc(48px + env(safe-area-inset-bottom));z-index:25;display:flex;align-items:center;gap:6px;min-height:46px;padding:0 12px;border-radius:999px;color:#fff;font:600 12px system-ui,sans-serif;cursor:pointer;background:rgba(13,22,29,.23);border:1.5px solid rgba(224,245,255,.78);box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 0 0 3px rgba(125,207,255,.13),0 0 14px rgba(100,187,236,.22);-webkit-backdrop-filter:blur(9px) saturate(120%);backdrop-filter:blur(9px) saturate(120%);opacity:0;visibility:hidden;pointer-events:none;transform:translate3d(12px,0,0) scale(.82);transform-origin:right bottom;transition:transform .43s cubic-bezier(.18,.88,.3,1.08),opacity .28s ease,visibility 0s linear .43s}
+#station-pill.visible{visibility:visible;pointer-events:auto;opacity:1;transform:translate3d(0,0,0) scale(1);transition-delay:0s}
+#station-pill span:first-child{font-size:17px;color:#bdeaff;text-shadow:0 0 10px #8bd6ff}
+#iss-controls{transform-origin:right bottom;transition:transform .43s cubic-bezier(.18,.88,.3,1.08),opacity .28s ease,visibility 0s linear 0s,background .5s ease,box-shadow .5s ease,border-color .5s ease}
+#iss-controls.collapsed{opacity:0;visibility:hidden;pointer-events:none;transform:translate3d(10px,2px,0) scale(.36);transition-delay:0s,0s,.43s,0s,0s,0s}
+@media(max-width:520px){#station-pill{bottom:calc(14px + env(safe-area-inset-bottom));right:9px}}
+.reduce-motion #station-pill,.reduce-motion #iss-controls{transition:none!important}
+@media(prefers-reduced-motion:reduce){#station-pill,#iss-controls{transition:none!important}}
+
+/* Local-only weather design: hidden until a bounded data endpoint is verified. */
+#weather-status{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);z-index:14;max-width:min(360px,calc(100vw - 32px));padding:10px 14px;border-radius:15px;color:#fff;font-size:12px;text-align:center;pointer-events:none}
+
+@media(max-width:520px){#weather-status{bottom:calc(205px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px)}}
+
+/* v27.0.1: explicit station collapse affordance, still supports a rightward swipe. */
+
+#iss-controls{touch-action:pan-y}
+#weather-status{left:12px;right:auto;bottom:calc(15px + env(safe-area-inset-bottom));transform:none;max-width:min(235px,calc(100vw - 165px));padding:6px 8px;font-size:10px;text-align:left;pointer-events:none}
+#weather-status.error{background:rgba(75,26,26,.8)}
+#weather-legend{position:fixed;left:9px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:23;width:152px;box-sizing:border-box;padding:8px 9px;color:#fff;font:10px/1.3 system-ui,sans-serif;background:rgba(11,19,28,.6);border:1px solid rgba(255,255,255,.3);border-radius:11px;pointer-events:none}
+#weather-legend small{display:block;margin-top:4px;font-size:8px;color:#e8e8ec}
+#weather-legend .weather-time{float:right;font-size:9px}
+.weather-gradient{height:7px;border-radius:9px;margin:5px 0 2px;background:linear-gradient(90deg,#6443b8,#4569d3,#3ba1da,#4bb77d,#ebda53,#f79235,#be4141)}
+.weather-scale{display:flex;justify-content:space-between;font-size:8px}
+
+/* v27.0.2: lift the legend off the separate lower-left temperature chip. */
+#weather-legend{bottom:calc(102px + env(safe-area-inset-bottom));width:148px;padding:7px 8px;background:rgba(11,19,28,.72)}
+#weather-legend.close-zoom .weather-gradient,#weather-legend.close-zoom .weather-scale{opacity:.4}
+#weather-legend.close-zoom::after{content:'Hidden at city zoom';display:block;color:#cce7f5;font-size:8px;margin-top:3px}
+@media(max-width:520px){#weather-legend{bottom:calc(100px + env(safe-area-inset-bottom))}}
+
+/* v27.0.3: controls rest quietly and reveal themselves on zoom. */
+#layers{transition:width .36s cubic-bezier(.2,.8,.2,1),height .36s cubic-bezier(.2,.8,.2,1),padding .36s ease,opacity .3s ease}
+#layers-pill{display:none!important}
+#layers.resting{width:45px!important;height:45px!important;padding:0!important;border-radius:999px;overflow:hidden}
+#layers.resting #layer-highlight,#layers.resting button[data-layer]{visibility:hidden;opacity:0;pointer-events:none}
+#layers.resting #layers-pill{display:block!important;position:absolute;inset:0;width:100%!important;height:100%!important;min-height:0!important;min-width:0!important;padding:0;color:#fff;font:600 11px system-ui,sans-serif;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:999px;cursor:pointer;touch-action:manipulation}
+#weather-legend{opacity:0;visibility:hidden;transform:translateY(5px);transition:opacity .28s ease,transform .28s ease,visibility 0s linear .28s;pointer-events:none}
+#weather-legend.visible{opacity:1;visibility:visible;transform:none;transition-delay:0s;pointer-events:auto;cursor:pointer}
+#weather-legend.pinned{box-shadow:0 0 0 2px rgba(151,219,255,.4),0 4px 16px rgba(0,0,0,.24)}
+/* v27.0.4: the grab line lives within the station glass border, not above any cell. */
+#iss-controls{padding-left:23px}
+#station-grab{position:absolute!important;left:1px!important;top:50%!important;transform:translateY(-50%)!important;z-index:3!important;display:grid!important;place-items:center!important;width:21px!important;min-width:21px!important;height:62px!important;min-height:62px!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;overflow:visible!important;cursor:pointer;touch-action:manipulation}
+#station-grab::before{display:none!important}
+#station-grab span{display:block;width:3px;height:27px;border-radius:99px;background:rgba(214,234,247,.82);box-shadow:0 0 5px rgba(143,203,242,.42)}
+#station-grab:focus-visible{outline:2px solid #b9e5ff;outline-offset:-2px;border-radius:12px!important}
+@media(max-width:520px){#iss-controls{width:calc(50vw + 8px);padding-left:23px}}
+:root[data-ui-theme=white] #station-grab span{background:rgba(20,47,66,.76)}
+@media(prefers-reduced-motion:reduce){#layers,#weather-legend{transition:none}}
+
+/* v27.0.5: no bogus on-load weather loading indicator; the whole feature is opt-in. */
+#weather-status.hidden,#weather-legend.hidden{display:none!important}
+/* The boot should not block the map while remote imagery sharpens. */
+#boot{transition:opacity .26s ease}
+#boot-eye{animation-duration:.48s;animation-delay:.03s}
+#boot-name{animation:none;opacity:1;filter:none;transform:none;clip-path:inset(0 100% 0 0);animation:word-build .52s steps(8,end) .26s forwards,word-glow .55s ease-out .26s both}
+@keyframes word-build{to{clip-path:inset(0 0 0 0)}}
+@keyframes word-glow{0%{filter:drop-shadow(0 0 0 transparent)}55%{filter:drop-shadow(0 0 9px rgba(205,231,255,.57))}100%{filter:drop-shadow(0 0 2px rgba(185,222,255,.19))}}
+#boot.gone{visibility:hidden;transition:opacity .26s ease,visibility 0s linear .26s}
+
+@media(prefers-reduced-motion:reduce){#boot-eye,#boot-name{animation:none!important;opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}}
+
+/* v27.0.7: continuous cinematic reveal of the supplied static wordmark. */
+#boot{gap:22px}
+#boot-eye{width:105px;animation:eyein .65s cubic-bezier(.18,.75,.28,1) .07s both}
+#boot-name-wrap{position:relative;width:min(320px,68vw);height:54px;display:grid;place-items:center;overflow:visible;opacity:0;animation:boot-wrap-in .2s ease .42s forwards}
+#boot-name{position:relative;width:100%;max-height:54px;object-fit:contain;opacity:1;filter:none;transform:translateY(3px);clip-path:inset(0 100% 0 0);animation:boot-text-reveal 1.55s linear .48s forwards!important;will-change:clip-path,transform}
+#boot-spark{position:absolute;top:50%;left:0;width:15px;height:15px;border-radius:50%;pointer-events:none;opacity:0;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff 0 7%,#fff4cf 8% 18%,rgba(255,235,180,.65) 19% 28%,transparent 70%);filter:drop-shadow(0 0 7px rgba(248,233,203,.65));animation:boot-edge 1.55s linear .48s forwards;will-change:left,opacity}
+#boot-spark::before,#boot-spark::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:linear-gradient(90deg,transparent,rgba(255,251,237,.88),transparent)}
+#boot-spark::before{width:24px;height:1px}#boot-spark::after{width:1px;height:24px;background:linear-gradient(transparent,rgba(255,251,237,.88),transparent)}
+@keyframes boot-wrap-in{to{opacity:1}}
+@keyframes boot-text-reveal{0%{clip-path:inset(0 100% 0 0);transform:translateY(3px);filter:drop-shadow(0 0 0 transparent)}66%{filter:drop-shadow(0 0 6px rgba(224,237,255,.55))}100%{clip-path:inset(0 0 0 0);transform:translateY(0);filter:drop-shadow(0 0 4px rgba(222,237,255,.42))}}
+@keyframes boot-edge{0%{left:0;opacity:0}7%{opacity:.62}42%{opacity:.48}73%{opacity:.7}95%{opacity:.5}100%{left:100%;opacity:0}}
+@media(prefers-reduced-motion:reduce){#boot-name-wrap{animation:none!important;opacity:1!important}#boot-name{animation:none!important;clip-path:none!important;transform:none!important;filter:none!important}#boot-spark{display:none!important}}
+
+/* v27.0.8: the fixed raster is revealed only where a pen-like SVG stroke has drawn. */
+#boot-letter-svg{width:min(320px,68vw);height:auto;display:block;overflow:visible}
+#boot .ink{stroke-dasharray:1;stroke-dashoffset:1;animation:ink-trace .21s linear forwards}
+#boot .ink-finish{opacity:0;animation:ink-settle .12s ease-out forwards}
+#boot .ink-tip{opacity:0;animation:ink-spark .21s ease-in-out forwards}
+@keyframes ink-trace{to{stroke-dashoffset:0}}
+@keyframes ink-settle{to{opacity:1}}
+@keyframes ink-spark{0%,100%{opacity:0}30%,70%{opacity:.82}}
+@media(prefers-reduced-motion:reduce){#boot .ink,#boot .ink-finish,#boot .ink-tip{animation:none!important}#boot .ink-finish{opacity:1!important}#boot .ink-tip{display:none!important}}
+
+/* v27.0.10: two identical geometric halves, red points north and white south. */
+#compass-needle .needle-arrow{position:absolute;inset:-1px;display:block;width:28px;height:28px;background:none!important;clip-path:none!important;filter:drop-shadow(0 1px 2px #071018)}
+
+/* The fallback is only for animation-suspended browsers; it never cuts off a letter. */
+#boot.completed .ink{stroke-dashoffset:0!important;animation:none!important}
+#boot.completed .ink-finish{opacity:1!important;animation:none!important}
+#boot.completed .ink-tip{display:none!important}
+
+/* Readout describes ellipsoid camera height, not terrain clearance or scale. */
+#camera-altitude{position:fixed;right:10px;bottom:calc(160px + env(safe-area-inset-bottom));z-index:21;color:#f2f8fb;background:rgba(9,16,26,.38);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 10px;font:500 11px system-ui,sans-serif;white-space:nowrap;pointer-events:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(0,0,0,.2)}
+@media(max-width:520px){#camera-altitude{bottom:calc(154px + env(safe-area-inset-bottom));right:10px}}
+
+/* v27.0.13: one segmented liquid-glass selector, one translating opaque lens. */
+#iss-controls{width:min(470px,calc(100vw - 18px))!important;min-height:0!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:4px!important;right:9px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;padding:6px 8px 7px 23px!important;box-sizing:border-box!important;border-radius:26px!important}
+#station-segments{position:relative;isolation:isolate;display:grid;grid-template-columns:.68fr .75fr 1.25fr .82fr;align-items:stretch;height:45px;border:1px solid rgba(255,255,255,.16);border-radius:999px;min-width:0}
+#station-segments button{z-index:1;width:100%!important;height:43px!important;min-height:43px!important;min-width:0!important;padding:0 3px!important;margin:0!important;border:0!important;border-radius:999px!important;background:transparent!important;box-shadow:none!important;color:rgba(255,255,255,.77);font:500 11px system-ui,sans-serif!important;white-space:nowrap!important;line-height:1!important;touch-action:manipulation}
+#station-segments button::before{display:none!important}
+#station-segments button[aria-pressed=true]{color:#fff;font-weight:650!important;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+#station-segments #station-lens{z-index:0;top:0;left:0;opacity:1;border:1px solid rgba(255,255,255,.58);background:linear-gradient(145deg,rgba(229,237,243,.48),rgba(105,130,146,.55));box-shadow:inset 0 1px 2px rgba(255,255,255,.47),0 3px 12px rgba(0,0,0,.28);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .38s cubic-bezier(.2,.9,.2,1),width .38s cubic-bezier(.2,.9,.2,1)}
+#station-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:20px;padding:0 5px}
+#station-meta #iss-center{position:static!important;width:auto!important;min-height:24px!important;height:24px!important;padding:0 8px!important;border-radius:999px!important;font-size:10px!important;white-space:nowrap!important}
+#station-meta #iss-status{display:block!important;min-height:0!important;max-width:none!important;padding:0!important;border:0!important;background:none!important;text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:10px!important;flex:1}
+#station-grab{height:44px!important;min-height:44px!important}
+@media(max-width:520px){#iss-controls{width:min(350px,calc(100vw - 18px))!important}#station-segments button{font-size:10px!important}}
+#camera-altitude{bottom:calc(106px + env(safe-area-inset-bottom))!important}
+@media(prefers-reduced-motion:reduce){#station-segments #station-lens{transition:none}}
+/* Reset legacy two-row cell placement inside the new single-row segment strip. */
+#station-segments #iss-toggle,#station-segments #css-toggle,#station-segments #station-none,#station-segments #station-both{grid-area:auto!important;display:block!important;min-width:0!important;max-width:none!important;position:relative!important}
+#station-segments #station-none{grid-column:1!important}
+#station-segments #iss-toggle{grid-column:2!important}
+#station-segments #css-toggle{grid-column:3!important}
+#station-segments #station-both{grid-column:4!important}
+#iss-controls{bottom:calc(29px + env(safe-area-inset-bottom))!important}
+#camera-altitude{bottom:calc(123px + env(safe-area-inset-bottom))!important}
+#station-meta #iss-status{grid-area:auto!important;display:block!important;color:#dce9ee!important}
+
+/* v27.0.16: two large touch targets; the lens follows discrete CSS state, not measured layout. */
+#iss-controls{width:min(420px,calc(100vw - 18px))!important;min-height:0!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:6px!important;right:9px!important;bottom:calc(29px + env(safe-area-inset-bottom))!important;padding:8px 10px 8px 23px!important;box-sizing:border-box!important;border-radius:26px!important}
+#station-segments,#station-follow{position:relative;isolation:isolate;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch;width:100%;height:47px;border:1px solid rgba(255,255,255,.22);border-radius:999px;overflow:hidden;min-width:0;box-sizing:border-box}
+#station-segments #iss-toggle,#station-segments #css-toggle,#station-follow #iss-center,#station-follow #station-unfollow{display:grid!important;place-items:center;position:relative!important;z-index:2!important;grid-area:auto!important;min-width:0!important;max-width:none!important;width:100%!important;height:45px!important;min-height:45px!important;margin:0!important;padding:0 6px!important;border:0!important;border-radius:999px!important;background:transparent!important;box-shadow:none!important;color:rgba(255,255,255,.82);font:600 12px system-ui,sans-serif!important;white-space:nowrap!important;touch-action:manipulation;transform:none!important;pointer-events:auto!important}
+#station-segments #iss-toggle{grid-column:1!important;grid-row:1!important}#station-segments #css-toggle{grid-column:2!important;grid-row:1!important}
+#station-follow #iss-center{grid-column:1!important;grid-row:1!important}#station-follow #station-unfollow{grid-column:2!important;grid-row:1!important}
+#station-segments button::before,#station-follow button::before{display:none!important}
+#station-segments button[aria-pressed=true],#station-follow button[aria-pressed=true]{color:white;font-weight:700!important;text-shadow:0 1px 2px #12202a}
+#station-segments #station-lens,#station-follow #follow-lens{display:block;position:absolute!important;top:0!important;left:0!important;z-index:1!important;opacity:1!important;pointer-events:none!important;width:50%!important;height:45px!important;border-radius:999px!important;background:linear-gradient(155deg,rgba(205,218,225,.55),rgba(157,174,181,.52))!important;border:1px solid rgba(246,249,251,.58)!important;box-shadow:inset 0 1px 1px rgba(255,255,255,.26),0 2px 8px rgba(0,0,0,.18)!important;box-sizing:border-box!important;backdrop-filter:blur(8px) saturate(65%);-webkit-backdrop-filter:blur(8px) saturate(65%);transition:transform .85s cubic-bezier(.25,.7,.2,1),width .85s cubic-bezier(.25,.7,.2,1),opacity .35s ease!important;will-change:transform,width}
+#station-segments[data-state=iss] #station-lens{transform:translate3d(0,0,0)!important;width:50%!important}
+#station-segments[data-state=css] #station-lens{transform:translate3d(100%,0,0)!important;width:50%!important}
+#station-segments[data-state=both] #station-lens{transform:translate3d(0,0,0)!important;width:100%!important}
+#station-segments[data-state=none] #station-lens{opacity:0!important;transform:translate3d(0,0,0)!important;width:50%!important}
+#station-follow.following #follow-lens{transform:translate3d(0,0,0)!important}
+#station-follow:not(.following) #follow-lens{transform:translate3d(100%,0,0)!important}
+#station-follow[hidden]{display:none!important}
+#station-follow #iss-center:disabled{opacity:.53!important;pointer-events:none!important}
+#station-meta{min-height:18px!important;padding:0 8px!important;display:flex;justify-content:flex-end}
+#station-meta #iss-status{display:block!important;position:static!important;max-width:none!important;min-height:0!important;height:auto!important;border:0!important;background:none!important;padding:0!important;text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#dce9ee!important;font-size:10px!important}
+#station-grab{height:44px!important;min-height:44px!important}
+#camera-altitude{bottom:calc(185px + env(safe-area-inset-bottom))!important}
+@media(max-width:520px){#iss-controls{width:min(350px,calc(100vw - 18px))!important}#station-segments button,#station-follow button{font-size:11px!important}}
+@media(prefers-reduced-motion:reduce){#station-segments #station-lens,#station-follow #follow-lens{transition:none!important}}
+
+/* v27.0.16 support page: clear action paths instead of raw address text. */
+#support{max-width:min(440px,calc(100vw - 28px));box-sizing:border-box;padding:28px 23px 23px!important}
+#support .support-eyebrow{margin:0 0 9px;color:#9fc6da;font:700 10px system-ui,sans-serif;letter-spacing:.18em}
+#support h2{font:650 clamp(23px,6vw,29px) system-ui,sans-serif;margin:0 0 11px}
+#support .support-intro{font-size:13px;line-height:1.55;color:#d5e2e9;margin:0 0 19px}
+#support .support-grid{display:grid;gap:10px}
+#support .support-link{display:grid;gap:4px;padding:15px 17px;border:1px solid rgba(255,255,255,.23);border-radius:17px;background:rgba(130,157,172,.13);color:#fff!important;text-decoration:none;box-shadow:inset 0 1px rgba(255,255,255,.1)}
+#support .support-link strong{font-size:14px}#support .support-link span{font-size:11px;color:#c5d6df}
+#support .support-link:focus-visible{outline:2px solid #9ee4ff;outline-offset:3px}
+#support .support-foot{margin:18px 0 0;color:#a9b9c1;font-size:10px;line-height:1.5}
+#support .support-eyebrow{color:#acd6e9!important;font-size:10px!important;font-weight:700!important;letter-spacing:.16em!important}
+#support .support-grid{display:grid!important;gap:10px!important}
+#support .support-link{display:flex!important;flex-direction:column!important;gap:4px!important;padding:14px 16px!important;border:1px solid rgba(255,255,255,.25)!important;border-radius:16px!important;background:rgba(115,145,161,.18)!important;color:#f6fbff!important;text-decoration:none!important;line-height:1.4!important}
+#support .support-link strong{display:block!important;color:#fff!important;font-size:14px!important;text-decoration:none!important}
+#support .support-link span{display:block!important;color:#c6dce8!important;font-size:11px!important;text-decoration:none!important}
+#support .support-foot{color:#b1c1ca!important;font-size:10px!important}
+#support{inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;padding:calc(72px + env(safe-area-inset-top)) 24px 28px!important;background:rgba(7,11,18,.96)!important}
+#support .aux-close{top:calc(12px + env(safe-area-inset-top))!important;right:18px!important}
+#support .support-grid{max-width:430px}
