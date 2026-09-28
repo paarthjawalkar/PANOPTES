@@ -4,13 +4,13 @@ An original mobile-browser Earth explorer by Paarth Jawalkar. PANOPTES uses Cesi
 
 ## Status
 
-The `main` branch records numbered development snapshots. v27.0.27b is the current public BASIC build; v24-v26 were development previews, and some earlier previews still need Android testing. Live flights are paused. Photorealistic 3D landmark data is not enabled while a safe free-tier cutoff is unresolved. Extreme polar imagery gaps and device performance remain under investigation. Do not use this app for navigation.
+The `main` branch records numbered development snapshots. v27.0.32 is the current public BASIC build; v24-v26 were development previews, and some earlier previews still need Android testing. Live flights are paused. Photorealistic 3D landmark data is not enabled while a safe free-tier cutoff is unresolved. Extreme polar imagery gaps and device performance remain under investigation. Do not use this app for navigation.
 
 The history was recreated from saved release archives. Credential strings in all revisions were replaced with placeholders. Bundled Cesium library files were removed in favor of CDN links. To run locally, replace `REPLACE_WITH_YOUR_CESIUM_ION_TOKEN` in `app.js` with your own token outside a public commit, then serve the directory from a static web server. Do not commit credential-bearing copies or archives. External data-provider terms apply.
 
 ## Screenshots
 
-Public BASIC v27.0.27b, captured in a desktop browser and a 390 × 844 mobile-sized browser viewport. The mobile capture is not a physical-device or FPS test. Aerial imagery and terrain are provided through Cesium ion; these are views of the app, not original photographs or photorealistic landmark models. Flights are paused in these captures.
+Archived public BASIC v27.0.27b screenshots, captured in a desktop browser and a 390 × 844 mobile-sized browser viewport. The mobile capture is not a physical-device or FPS test. Aerial imagery and terrain are provided through Cesium ion; these are views of the app, not original photographs or photorealistic landmark models. Flights are paused in these captures.
 
 | Desktop globe | Mobile-sized globe |
 |:---:|:---:|

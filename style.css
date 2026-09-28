@@ -474,3 +474,8 @@ html,body,body *,body *::before,body *::after{-webkit-tap-highlight-color:transp
 #support{inset:0!important;width:100vw!important;max-width:none!important;height:100dvh!important;padding:calc(72px + env(safe-area-inset-top)) 24px 28px!important;background:rgba(7,11,18,.96)!important}
 #support .aux-close{top:calc(12px + env(safe-area-inset-top))!important;right:18px!important}
 #support .support-grid{max-width:430px}
+
+/* v27.0.32: tidy the desktop credit rail while retaining its on-screen logos and attribution. */
+@media (min-width: 521px) {
+  .cesium-viewer-bottom {left:12px!important;bottom:8px!important;opacity:1!important;transform:scale(.8);transform-origin:bottom left}
+}

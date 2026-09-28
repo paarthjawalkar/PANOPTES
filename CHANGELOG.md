@@ -1,6 +1,14 @@
 # PANOPTES changes
 
-## v27.0.27b (current BASIC public build)
+## v27.0.32 (current BASIC public build)
+
+**Place-label bug after consecutive searches.** When we searched New York and then the Taj Mahal, the camera reached Agra while the on-screen label could continue to say NEW YORK. The reverse-geocode handler had a ten-second spacing guard that returned without scheduling a later lookup. A late response for the earlier camera position could also replace the new label. We now clear the old label when a new search flight starts, ignore reverse responses from an earlier flight, and schedule the next lookup after the remaining spacing time instead of dropping it. Repeated camera-move notifications can reuse a resolved place name without starting another request. On INSIDER we checked New York City to Taj Mahal in the browser: the old label cleared and the Taj aerial resolved to AGRA; a deterministic quick-flight test also covered a late old response and a duplicate camera-stop notification.
+
+**Desktop credit rail.** We moved the existing Cesium credit rail a few pixels in from the left and bottom edges and restored full opacity while keeping its existing 80% scale. The Cesium ion logo and the data-attribution link remain visible and clickable on the main desktop view; the mobile credit rail is unchanged. We did not move the Cesium ion logo to About because a mobile browser's treatment under the mobile-app exception is unclear, and third-party imagery credits must remain accessible.
+
+No ARGUS mode, live aircraft feed, new landmark model or unrelated diagnostic has been added in this build.
+
+## v27.0.27b (previous BASIC public build)
 Remove detached ISS geometry and its animation tracks. Verified simplified ISS model and globe boot on mobile-sized browser. Flights paused, ships not present, Tiangong paused pending verified orbit data.
 
 ## v26-preview (tested preview, not production)

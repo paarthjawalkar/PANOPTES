@@ -88,13 +88,14 @@ function saveView(destination){try{history.replaceState({panoptesView:cameraStat
 window.addEventListener('popstate',e=>{if(sessionStorage.getItem('panoptes-hard-home')==='1'){history.replaceState({panoptesHardHome:true,panoptesView:{lon:0,lat:25,height:22000000,heading:0,pitch:-Math.PI/2,roll:0}},'',location.pathname);return}const v=e.state?.panoptesView;if(!v)return;viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(v.lon,v.lat,v.height),orientation:{heading:v.heading,pitch:v.pitch,roll:v.roll},duration:1.1})});
 function flyTo(lat, lon) {
   try{sessionStorage.removeItem('panoptes-hard-home')}catch{}
+  invalidatePlaceLabel();
   saveView({lon,lat,height:1800,heading:0,pitch:Cesium.Math.toRadians(-46),roll:0});
   const target = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
   const sphere = new Cesium.BoundingSphere(target, 150);
   viewer.camera.flyToBoundingSphere(sphere, {
     offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-46), 1800),
     duration: 3.2,
-    complete:()=>{try{history.replaceState({panoptesView:cameraState()},'',location.href)}catch{}},
+    complete:()=>{try{history.replaceState({panoptesView:cameraState()},'',location.href)}catch{}; schedulePlaceLookup();},
   });
 }
 
@@ -224,7 +225,8 @@ document.getElementById('info-close').onclick = () => document.getElementById('i
 
 /* Explicit, sharp on-screen labels: only resolved city/area names. Never label waterways from broad ocean classes. */
 const placeLabel = document.getElementById('place-label');
-let placeTimer, lastPlaceKey = '', lastPlaceAt = 0, lastLabelName = '';
+let placeTimer, lastPlaceKey = '', lastPlaceAt = 0, lastLabelName = '', cachedPlaceName = '';
+let placeGeneration = 0;
 function showPlaceName(name) {
   if (name === lastLabelName) return;
   lastLabelName = name;
@@ -234,29 +236,45 @@ function showPlaceName(name) {
   void placeLabel.offsetWidth;
   if (name) placeLabel.classList.add('glitch-in');
 }
-viewer.camera.moveEnd.addEventListener(() => {
+// A new search flight invalidates any pending reverse response immediately.
+function invalidatePlaceLabel() {
+  ++placeGeneration;
   clearTimeout(placeTimer);
-  placeTimer = setTimeout(async () => {
+  showPlaceName('');
+}
+function schedulePlaceLookup() {
+  const generation = ++placeGeneration;
+  clearTimeout(placeTimer);
+  const lookup = async () => {
+    if (generation !== placeGeneration) return;
     const pos = viewer.camera.positionCartographic;
-    if (!pos || pos.height > 850000 || Date.now() - lastPlaceAt < 10000) { if (pos?.height > 850000) showPlaceName(''); return; }
+    if (!pos || pos.height > 850000) { showPlaceName(''); return; }
     const pick = viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2));
-    if (!pick) return;
+    if (!pick) { showPlaceName(''); return; }
     const c = Cesium.Cartographic.fromCartesian(pick);
     const lat = Cesium.Math.toDegrees(c.latitude), lon = Cesium.Math.toDegrees(c.longitude);
     const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
-    if (key === lastPlaceKey) return;
-    lastPlaceKey = key; lastPlaceAt = Date.now();
+    if (key === lastPlaceKey) { showPlaceName(cachedPlaceName); return; }
+    // Respect Nominatim's request spacing without dropping the new location.
+    const wait = 10000 - (Date.now() - lastPlaceAt);
+    if (wait > 0) { placeTimer = setTimeout(lookup, wait); return; }
+    lastPlaceAt = Date.now();
     try {
       const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`);
+      if (!r.ok) throw new Error('Reverse lookup failed');
       const j = await r.json();
+      if (generation !== placeGeneration) return;
       const a = j.address || {};
       const n = pos.height < 5000
         ? (a.neighbourhood || a.suburb || a.city_district || a.city || a.town || a.village || a.municipality || a.county || '')
         : (a.city || a.town || a.village || a.municipality || a.county || a.state || '');
+      lastPlaceKey = key; cachedPlaceName = n;
       showPlaceName(n);
-    } catch { showPlaceName(''); }
-  }, 2200);
-});
+    } catch { if (generation === placeGeneration) showPlaceName(''); }
+  };
+  placeTimer = setTimeout(lookup, 2200);
+}
+viewer.camera.moveEnd.addEventListener(schedulePlaceLookup);
 
 /* 2D and 3D are camera/building modes on the same round Earth, not projection modes.
    Offer the control only once city detail is close enough to show buildings. */
