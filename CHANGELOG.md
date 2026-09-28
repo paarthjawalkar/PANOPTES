@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v26-preview (tested preview, not production)
+Keep the boot screen until the first imagery tile has loaded. The ISS model still showed a detached gray artifact in Follow.
+
 ## v25-preview (diagnostic, not production)
 Shorten the boot fallback from 8 seconds to 2.4 seconds. On testing, this could reveal bare starfield before imagery, so it was not promoted.
 

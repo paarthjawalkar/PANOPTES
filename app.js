@@ -39,7 +39,16 @@ viewer.scene.screenSpaceCameraController.minimumZoomDistance = 80;
 // which can make an intended zoom-out spin/drag the globe at oblique angles.
 viewer.scene.screenSpaceCameraController.tiltEventTypes = [Cesium.CameraEventType.MIDDLE_DRAG, {eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL}];
 viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(0, 25, 22000000) });
-viewer.scene.postRender.addEventListener(function onFirstFrame(){viewer.scene.postRender.removeEventListener(onFirstFrame);window.dispatchEvent(new Event('panoptes-globe-ready'))});
+// Do not reveal a starfield before the first imagery tile arrives. A slow
+// imagery service is surfaced as delayed loading, never a blank fake Earth.
+let initialEarthRevealed=false;
+function tryRevealEarth(){
+  if(initialEarthRevealed || !viewer.imageryLayers.length || !viewer.scene.globe.tilesLoaded)return;
+  initialEarthRevealed=true;
+  window.dispatchEvent(new Event('panoptes-globe-ready'));
+  viewer.scene.postRender.removeEventListener(tryRevealEarth);
+}
+viewer.scene.postRender.addEventListener(tryRevealEarth);
 
 (async () => {
   try {
