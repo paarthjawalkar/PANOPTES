@@ -10,7 +10,7 @@ The history was recreated from saved release archives. Credential strings in all
 
 ## Feedback
 
-Ideas and bug reports are welcome through GitHub Issues. Please include your device, browser, steps to reproduce, and a screenshot when useful. Paarth will review suggestions. Public replies require his approval.
+Ideas and bug reports are welcome through GitHub Issues. Please include your device, browser, steps to reproduce, and a screenshot when useful. We'll review suggestions there.
 
 ## Data and library credits
 
