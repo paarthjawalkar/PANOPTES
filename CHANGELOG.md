@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v27.0.27b (current BASIC public build)
+Remove detached ISS geometry and its animation tracks. Verified simplified ISS model and globe boot on mobile-sized browser. Flights paused, ships not present, Tiangong paused pending verified orbit data.
+
 ## v26-preview (tested preview, not production)
 Keep the boot screen until the first imagery tile has loaded. The ISS model still showed a detached gray artifact in Follow.
 

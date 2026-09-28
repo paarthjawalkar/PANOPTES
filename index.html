@@ -7,7 +7,7 @@
 <title>PANOPTES</title>
 <link rel="icon" type="image/png" href="assets/eye.png">
 <link href="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=27-0-26">
+<link rel="stylesheet" href="style.css?v=27-0-27b">
 </head>
 <body>
 <div id="boot">
@@ -72,8 +72,8 @@
     var cesium=document.createElement('script');
     cesium.src='https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Cesium.js';
     cesium.onload=function(){
-      var satellite=document.createElement('script');satellite.src='assets/satellite.min.js?v=27-0-16';
-      satellite.onload=function(){var app=document.createElement('script');app.src='app.js?v=27-0-26';document.body.appendChild(app)};
+      var satellite=document.createElement('script');satellite.src='assets/satellite.min.js?v=27-0-27';
+      satellite.onload=function(){var app=document.createElement('script');app.src='app.js?v=27-0-27b';document.body.appendChild(app)};
       document.body.appendChild(satellite);
     };
     document.body.appendChild(cesium);

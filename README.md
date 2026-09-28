@@ -4,7 +4,7 @@ An original mobile-browser Earth explorer by Paarth Jawalkar. PANOPTES uses Cesi
 
 ## Status
 
-The `main` branch records numbered development snapshots. v10 is the current production build; v11-v23 are previews and need Android testing. Live flights are paused. Photorealistic 3D landmark data is not enabled while a safe free-tier cutoff is unresolved. Extreme polar imagery gaps and device performance remain under investigation. Do not use this app for navigation.
+The `main` branch records numbered development snapshots. v27.0.27b is the current public BASIC build; v24-v26 were development previews, and some earlier previews still need Android testing. Live flights are paused. Photorealistic 3D landmark data is not enabled while a safe free-tier cutoff is unresolved. Extreme polar imagery gaps and device performance remain under investigation. Do not use this app for navigation.
 
 The history was recreated from saved release archives. Credential strings in all revisions were replaced with placeholders. Bundled Cesium library files were removed in favor of CDN links. To run locally, replace `REPLACE_WITH_YOUR_CESIUM_ION_TOKEN` in `app.js` with your own token outside a public commit, then serve the directory from a static web server. Do not commit credential-bearing copies or archives. External data-provider terms apply.
 
