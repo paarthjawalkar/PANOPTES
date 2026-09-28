@@ -8,16 +8,6 @@ The `main` branch records numbered development snapshots. v27.0.27b is the curre
 
 The history was recreated from saved release archives. Credential strings in all revisions were replaced with placeholders. Bundled Cesium library files were removed in favor of CDN links. To run locally, replace `REPLACE_WITH_YOUR_CESIUM_ION_TOKEN` in `app.js` with your own token outside a public commit, then serve the directory from a static web server. Do not commit credential-bearing copies or archives. External data-provider terms apply.
 
-## Screenshots
-
-Public BASIC v27.0.27b in a 390 × 844 mobile-sized browser viewport. These are browser captures, not device FPS tests.
-
-| Globe | OSM 3D buildings near the Eiffel Tower | ISS Follow |
-|:---:|:---:|:---:|
-| ![PANOPTES globe and mobile controls](2-globe.png) | ![Eiffel Tower and OSM 3D buildings in PANOPTES](3-eiffel-3d.png) | ![ISS model in Follow view over the globe](4-iss-follow.png) |
-
-The ISS view uses the public build's enlarged model and a reported station position. Flights in these captures are paused; they do not depict live aircraft.
-
 ## Feedback
 
 Ideas and bug reports are welcome through GitHub Issues. Please include your device, browser, steps to reproduce, and a screenshot when useful. We'll review suggestions there.
