@@ -1,5 +1,8 @@
 # PANOPTES changes
 
+## v25-preview (diagnostic, not production)
+Shorten the boot fallback from 8 seconds to 2.4 seconds. On testing, this could reveal bare starfield before imagery, so it was not promoted.
+
 ## v24-preview (diagnostic, not production)
 Show coarser globe imagery sooner and defer OSM Buildings until the first globe tiles settle, with a 6.5-second fallback. Boot could still wait too long.
 
