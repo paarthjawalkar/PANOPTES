@@ -2,6 +2,10 @@
 
 An original mobile-browser Earth explorer by Paarth Jawalkar. PANOPTES uses CesiumJS, Cesium ion terrain and Bing aerial imagery, with Wikipedia/Wikidata and OpenStreetMap-based search.
 
+## Demo
+
+A short screen-recorded demo of the current build is being prepared and will be added here. Until then, the [live app](https://panoptes-earth.pages.dev/) is the fastest way to see PANOPTES running, and the archived screenshots below show the public BASIC v27.0.27b build.
+
 ## Status
 
 The `main` branch records numbered development snapshots. v27.0.32 is the current public BASIC build; v24-v26 were development previews, and some earlier previews still need Android testing. Live flights are paused. Photorealistic 3D landmark data is not enabled while a safe free-tier cutoff is unresolved. Extreme polar imagery gaps and device performance remain under investigation. Do not use this app for navigation.
