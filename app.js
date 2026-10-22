@@ -3,12 +3,19 @@
 if ("serviceWorker" in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister())).catch(() => {});
 Cesium.Ion.defaultAccessToken = 'REPLACE_WITH_YOUR_CESIUM_ION_TOKEN';
 
-const viewer = new Cesium.Viewer('cesiumContainer', {
-  baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
-  baseLayer: false,
-  navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
-  infoBox: false, selectionIndicator: false,
-});
+let viewer;
+try {
+  viewer = new Cesium.Viewer('cesiumContainer', {
+    baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
+    baseLayer: false,
+    navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false,
+    infoBox: false, selectionIndicator: false,
+  });
+} catch (globeErr) {
+  const boot=document.getElementById('boot');
+  if(boot) boot.innerHTML='<div style="color:#e8eef4;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:2rem;line-height:1.6">The globe could not start.<br>Check your connection and reload the page.</div>';
+  throw globeErr;
+}
 viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#172b39');
 // Prefer a recognizable coarse Earth before the detailed descendants finish.
 viewer.scene.globe.loadingDescendantLimit = 4;
@@ -395,6 +402,7 @@ document.getElementById('flight-close').onclick=()=>flightCard.classList.add('hi
 const flightIcons=new Cesium.PinBuilder();
 const iconCanvas=flightIcons.fromText('✈',Cesium.Color.WHITE,40).toDataURL();
 let lastFlightFetch=0, flightsPaused=true, flightLoading=false;
+const FLIGHTS_ENABLED=false; /* flip to true once a permitted live flight feed is wired up */
 function setFlightState(text,active=false){
   flightsPaused=!active;
   flightStatus.textContent=text;
@@ -408,7 +416,7 @@ function showAircraft(a){
   flightDetail.replaceChildren();
   const h=document.createElement('strong');h.textContent=aircraftName(a);
   const p=document.createElement('div');p.textContent=[a.type?'Type '+a.type:'Type unknown',Number.isFinite(a.alt_baro)?Math.round(a.alt_baro).toLocaleString()+' ft':'Altitude unknown',a.gs?Math.round(a.gs)+' kt':'Speed unavailable'].join(' · ');
-  const c=document.createElement('small');c.textContent='Live reported position from ADSB.lol. Destination, origin and actual past trajectory unavailable from this feed.';
+  const c=document.createElement('small');c.textContent='Live reported position. Destination, origin and past trajectory are unavailable from this feed.';
   flightDetail.append(h,p,c);flightCard.classList.remove('hidden');
 }
 function updateAircraft(list){
@@ -434,7 +442,7 @@ viewer.screenSpaceEventHandler.setInputAction(m=>{
   if(hex&&aircraft.has(hex))showAircraft(aircraft.get(hex).a);
 },Cesium.ScreenSpaceEventType.LEFT_CLICK);
 async function refreshAircraft(){
-  if(flightLoading||document.visibilityState!=='visible'||viewer.camera.positionCartographic.height>650000) return;
+  if(!FLIGHTS_ENABLED||flightLoading||document.visibilityState!=='visible'||viewer.camera.positionCartographic.height>650000) return;
   const t=Date.now();if(t-lastFlightFetch<60000)return;
   const xy=new Cesium.Cartesian2(viewer.canvas.clientWidth/2,viewer.canvas.clientHeight/2);
   const hit=viewer.camera.pickEllipsoid(xy);if(!hit)return;

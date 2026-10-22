@@ -3,13 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>PANOPTES</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PANOPTES · Live 3D Earth Explorer</title>
+<meta name="description" content="PANOPTES is a free live 3D Earth explorer for mobile and desktop browsers: real-time ISS tracking, satellite orbits, a temperature layer and place search on a photorealistic globe.">
+<link rel="canonical" href="https://panoptes-earth.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PANOPTES">
+<meta property="og:title" content="PANOPTES · Live 3D Earth Explorer">
+<meta property="og:description" content="Explore Earth live in 3D: track the ISS in real time, see satellite orbits and global temperature on a photorealistic globe. Free, no sign-up.">
+<meta property="og:url" content="https://panoptes-earth.pages.dev/">
+<meta property="og:image" content="https://panoptes-earth.pages.dev/assets/eye.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PANOPTES · Live 3D Earth Explorer">
+<meta name="twitter:description" content="Explore Earth live in 3D: track the ISS in real time, see satellite orbits and global temperature on a photorealistic globe. Free, no sign-up.">
+<meta name="twitter:image" content="https://panoptes-earth.pages.dev/assets/eye.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"PANOPTES","url":"https://panoptes-earth.pages.dev/","applicationCategory":"EducationalApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free live 3D Earth explorer with real-time ISS tracking, satellite orbits, temperature layer and place search.","creator":{"@type":"Person","name":"Paarth Jawalkar"}}
+</script>
 <link rel="icon" type="image/png" href="assets/eye.png">
-<link href="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=27-0-32">
+<link href="https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Widgets/widgets.css" rel="stylesheet" integrity="sha384-ghEeMdcWWzRv/BPeUcX835vcKDGrxvROXisl/Btpv3GeekBUXTSPVcFJpI1Tcrgp" crossorigin="anonymous">
+<link rel="stylesheet" href="style.css?v=27-0-33">
 </head>
 <body>
+<h1 class="sr-only">PANOPTES - a free live 3D Earth explorer with real-time ISS tracking</h1>
 <div id="boot">
   <img id="boot-eye" src="assets/eye.png" alt="">
   <svg id="boot-letter-svg" viewBox="0 0 2465 548" role="img" aria-label="PANOPTES" xmlns="http://www.w3.org/2000/svg"><defs><mask id="boot-ink" maskUnits="userSpaceOnUse" x="0" y="0" width="2465" height="548" style="mask-type:luminance"><rect width="2465" height="548" fill="black"/><path class="ink ink-0" pathLength="1" d="M 85 414 V 164 H 210 Q 265 164 265 225 Q 265 295 205 295 H 85" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.249s"/><rect class="ink-finish" x="62" y="136" width="225" height="285" fill="white" style="animation-delay:0.398s"/><path class="ink ink-1" pathLength="1" d="M 347 415 L 432 172 Q 454 120 480 172 L 595 415" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.457s"/><rect class="ink-finish" x="322" y="136" width="298" height="285" fill="white" style="animation-delay:0.606s"/><path class="ink ink-2" pathLength="1" d="M 694 415 V 168 Q 694 145 714 164 L 869 391 Q 907 435 931 393 V 141" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.664s"/><rect class="ink-finish" x="671" y="136" width="288" height="285" fill="white" style="animation-delay:0.813s"/><path class="ink ink-3" pathLength="1" d="M 1166 161 C 1090 161 1051 206 1051 276 C 1051 353 1091 393 1166 393 C 1242 393 1281 350 1281 276 C 1281 203 1240 161 1166 161 Z" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.871s"/><rect class="ink-finish" x="1026" y="136" width="281" height="285" fill="white" style="animation-delay:1.021s"/><path class="ink ink-4" pathLength="1" d="M 1397 415 V 163 H 1525 Q 1573 163 1573 229 Q 1573 292 1521 292 H 1397" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:1.079s"/><rect class="ink-finish" x="1373" y="136" width="225" height="285" fill="white" style="animation-delay:1.228s"/><path class="ink ink-5" pathLength="1" d="M 1662 162 H 1816 M 1738 162 V 415" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:1.286s"/><rect class="ink-finish" x="1636" y="136" width="206" height="285" fill="white" style="animation-delay:1.436s"/><path class="ink ink-6" pathLength="1" d="M 2079 160 H 1952 Q 1908 160 1908 211 Q 1908 256 1950 267 H 2074 M 1950 267 Q 1907 277 1907 346 Q 1907 397 1951 397 H 2080" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:1.494s"/><rect class="ink-finish" x="1887" y="136" width="227" height="285" fill="white" style="animation-delay:1.643s"/><path class="ink ink-7" pathLength="1" d="M 2385 164 H 2244 Q 2195 164 2195 210 Q 2195 265 2250 271 H 2358 Q 2400 271 2400 336 Q 2400 395 2355 395 H 2196" fill="none" stroke="white" stroke-width="61" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:1.701s"/><rect class="ink-finish" x="2174" y="136" width="242" height="285" fill="white" style="animation-delay:1.851s"/></mask></defs><image href="assets/wordmark.png" width="2465" height="548" mask="url(#boot-ink)"/><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:0.249s"><animateMotion dur=".25s" begin="0.30s" fill="freeze" path="M 85 414 V 164 H 210 Q 265 164 265 225 Q 265 295 205 295 H 85"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:0.457s"><animateMotion dur=".25s" begin="0.55s" fill="freeze" path="M 347 415 L 432 172 Q 454 120 480 172 L 595 415"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:0.664s"><animateMotion dur=".25s" begin="0.80s" fill="freeze" path="M 694 415 V 168 Q 694 145 714 164 L 869 391 Q 907 435 931 393 V 141"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:0.871s"><animateMotion dur=".25s" begin="1.05s" fill="freeze" path="M 1166 161 C 1090 161 1051 206 1051 276 C 1051 353 1091 393 1166 393 C 1242 393 1281 350 1281 276 C 1281 203 1240 161 1166 161 Z"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:1.079s"><animateMotion dur=".25s" begin="1.30s" fill="freeze" path="M 1397 415 V 163 H 1525 Q 1573 163 1573 229 Q 1573 292 1521 292 H 1397"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:1.286s"><animateMotion dur=".25s" begin="1.55s" fill="freeze" path="M 1662 162 H 1816 M 1738 162 V 415"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:1.494s"><animateMotion dur=".25s" begin="1.80s" fill="freeze" path="M 2079 160 H 1952 Q 1908 160 1908 211 Q 1908 256 1950 267 H 2074 M 1950 267 Q 1907 277 1907 346 Q 1907 397 1951 397 H 2080"/></circle><circle class="ink-tip" r="16" fill="#fff9e2" style="animation-delay:1.701s"><animateMotion dur=".25s" begin="2.05s" fill="freeze" path="M 2385 164 H 2244 Q 2195 164 2195 210 Q 2195 265 2250 271 H 2358 Q 2400 271 2400 336 Q 2400 395 2355 395 H 2196"/></circle></svg>
@@ -59,7 +75,7 @@
 </div>
 <div id="help" class="glass hidden" role="dialog"><button class="aux-close" aria-label="Close">&times;</button><h2>Help</h2><p>Search for a place, then drag and pinch to explore. Tap the compass to face north. Tap the eye to return to Earth. Hold the eye to clear the current view.</p></div>
 <div id="faq" class="glass hidden" role="dialog"><button class="aux-close" aria-label="Close">&times;</button><h2>FAQ</h2><p>Why are flights paused? The free data feed is unavailable right now. No flights are invented. Why do some buildings look plain? This view uses open building geometry, not photorealistic models.</p></div>
-<div id="contact" class="glass hidden" role="dialog"><button class="aux-close" aria-label="Close">&times;</button><h2>Contact</h2><p>Questions or feedback? Email <a href="mailto:paarthjawalkar+panoptes@gmail.com">paarthjawalkar+panoptes@gmail.com</a>.</p><p>GitHub: <a href="https://github.com/paarthjawalkar" target="_blank" rel="noopener noreferrer">github.com/paarthjawalkar ↗</a></p></div>
+<div id="contact" class="glass hidden" role="dialog"><button class="aux-close" aria-label="Close">&times;</button><h2>Contact</h2><p>Questions or feedback? Email <a href="mailto:paarthjawalkar+panoptes@gmail.com">Email PANOPTES</a>.</p><p>GitHub: <a href="https://github.com/paarthjawalkar" target="_blank" rel="noopener noreferrer">github.com/paarthjawalkar ↗</a></p></div>
 <div id="support" class="glass hidden" role="dialog" aria-label="Support"><button class="aux-close" aria-label="Close">&times;</button><p class="support-eyebrow">PANOPTES / HELP</p><h2>How can we help?</h2><p class="support-intro">Tell us what happened. A device, browser, and screenshot make a bug easier to track down.</p><div class="support-grid"><a class="support-link" href="https://github.com/paarthjawalkar/PANOPTES/issues" target="_blank" rel="noopener noreferrer"><strong>Report a bug</strong><span>Open a public GitHub issue ↗</span></a><a class="support-link" href="mailto:paarthjawalkar+panoptes@gmail.com?subject=PANOPTES%20support"><strong>Email support</strong><span>Send a private message ↗</span></a></div><p class="support-foot">Flights are paused until a permitted live feed works. PANOPTES is not for navigation.</p></div>
 
 <script>
@@ -67,13 +83,19 @@
    Completion is gated on the LAST CSS animation, never a first Cesium frame. */
 (function(){
   var boot=document.getElementById('boot'),loaded=false;
+  function globeLoadFailed(){
+    if(boot) boot.innerHTML='<div style="color:#e8eef4;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:2rem;line-height:1.6">The globe could not load.<br>Check your connection and reload the page.</div>';
+  }
   function loadGlobe(){
     if(loaded)return;loaded=true;
     var cesium=document.createElement('script');
     cesium.src='https://cdn.jsdelivr.net/npm/cesium@1.120/Build/Cesium/Cesium.js';
+    cesium.integrity='sha384-u6lI9nKeZ0sgcSQty6qC4XQHU/ZG7JJ8PfRvtUQTH83OstsiEivIu3F9k012EB3W';cesium.crossOrigin='anonymous';
+    cesium.onerror=globeLoadFailed;
     cesium.onload=function(){
       var satellite=document.createElement('script');satellite.src='assets/satellite.min.js?v=27-0-27';
-      satellite.onload=function(){var app=document.createElement('script');app.src='app.js?v=27-0-32';document.body.appendChild(app)};
+      satellite.onload=function(){var app=document.createElement('script');app.src='app.js?v=27-0-33';app.onerror=globeLoadFailed;document.body.appendChild(app)};
+      satellite.onerror=globeLoadFailed;
       document.body.appendChild(satellite);
     };
     document.body.appendChild(cesium);
