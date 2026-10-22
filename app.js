@@ -632,7 +632,14 @@ canvas.addEventListener('touchstart',e=>{
 canvas.addEventListener('touchmove',e=>{
   if(!holdCandidate||e.touches.length!==1)return;
   const t=e.touches[0];
-  if(!holdZoom){if(Math.hypot(t.clientX-holdStartX,t.clientY-holdStartY)>12){holdCandidate=false;clearTimeout(holdTimer)}return}
+  if(!holdZoom){
+    const dx0=t.clientX-holdStartX,dy0=t.clientY-holdStartY;
+    if(Math.hypot(dx0,dy0)<=12)return;
+    // Second tap followed by a mostly-vertical drag is one-finger zoom, even
+    // without a 130ms pause; a mostly-horizontal drag stays a normal pan.
+    if(Math.abs(dy0)>Math.abs(dx0)){holdZoom=true;viewer.scene.screenSpaceCameraController.enableInputs=false;clearTimeout(holdTimer)}
+    else{holdCandidate=false;clearTimeout(holdTimer);return}
+  }
   e.preventDefault();
   const dy=t.clientY-holdLastY;holdLastY=t.clientY;
   const height=Math.max(80,viewer.camera.positionCartographic.height);
